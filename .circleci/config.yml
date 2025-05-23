@@ -14,7 +14,9 @@ jobs:
           name: Install dependencies
           command: npm install
       - discord/status:
-          webhook: ${DISCORD_WEBHOOK}
+          fail_only: true
+          failure_message: "**${CIRCLE_USERNAME}**'s build: **${CIRCLE_JOB}** failed."
+          webhook: "${DISCORD_STATUS_WEBHOOK}"
 
   run-tests:
     docker:
