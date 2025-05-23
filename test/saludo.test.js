@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import request from 'supertest';
-import app from '../src/index.js';
+import app from '../src/app.js';
 
 describe('GET /', () => {
   it('debería responder con un saludo', async () => {

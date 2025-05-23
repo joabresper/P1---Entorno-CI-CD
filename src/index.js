@@ -1,12 +1,4 @@
-import express from 'express';
-import { saludar } from './saludo.js';
-
-const app = express();
-
-app.get('/', (req, res) => {
-  const mensaje = saludar();
-  res.json({ mensaje });
-});
+import app from './app.js';
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(3000, () => {
@@ -14,4 +6,3 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-export default app;
