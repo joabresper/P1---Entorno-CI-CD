@@ -31,6 +31,6 @@ jobs:
           command: npm test
 
 workflows:
-  first-test:
+  my-test:
     jobs:
       - create-environment
