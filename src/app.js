@@ -5,8 +5,7 @@ const app = express();
 
 app.get('/', (req, res) => {
   const mensaje = saludar();
-  const otroMensaje = '¡Hola, mundo! 🌍';
-  res.json({ mensaje, otroMensaje });
+  res.json({ mensaje });
 });
 
 export default app;
