@@ -14,7 +14,9 @@ jobs:
           name: Install dependencies
           command: npm install
       - discord/status:
+          fail_only: true
           webhook: "${DISCORD_WEBHOOK}"
+          custom: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación."
 
   run-tests:
     docker:
@@ -27,6 +29,10 @@ jobs:
       - run:
           name: Run tests
           command: npm test
+      - discord/status:
+          webhook: "${DISCORD_WEBHOOK}"
+          success: "**✅ Pruebas completadas con éxito!** Todo salió bien."
+          failure: "**❌ Las pruebas fallaron.** Revisá los resultados.
 
 workflows:
   my-test:
