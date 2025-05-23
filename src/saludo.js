@@ -12,5 +12,5 @@ function saludar() {
 	}
   }
 
-export { saludar };
+export default saludar;
   
