@@ -9,8 +9,6 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - node/install:
-          install-npm: true
       - run: node --version
       - run:
           name: Install dependencies
