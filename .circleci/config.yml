@@ -10,10 +10,10 @@ jobs:
     steps:
       - checkout
       - run: node --version
-      - run: 
+      - run:
           name: Install dependencies
           command: npm install
-      - discord/notify:
+      - discord/status:
           webhook: https://circleci.com/developer/orbs/orb/antonioned/discord
 
   run-tests:
