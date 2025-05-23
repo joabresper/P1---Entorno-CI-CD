@@ -16,7 +16,7 @@ jobs:
       - discord/status:
           fail_only: true
           webhook: "${DISCORD_WEBHOOK}"
-          failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación.\\nUsuario: **${CIRCLE_USERNAME}**"
+          failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
   run-tests:
     docker:
@@ -31,8 +31,21 @@ jobs:
           command: npm test
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\nUsuario: **${CIRCLE_USERNAME}**"
-          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\nUsuario: **${CIRCLE_USERNAME}**"
+          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+  
+  deploy:
+    docker:
+      - image: cimg/node:22.12.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Deploy in Render
+          command: |
+            curl -X POST "$RENDER_DEPLOY_HOOK_URL"
 
 workflows:
   my-test:
@@ -41,4 +54,6 @@ workflows:
       - run-tests:
           requires:
             - create-environment
-# asd
+      - deploy:
+          requires:
+            - run-tests
