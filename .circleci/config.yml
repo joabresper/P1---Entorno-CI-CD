@@ -26,6 +26,9 @@ jobs:
           name: Check mocha binary
           command: ls -l node_modules/.bin/mocha
       - run:
+          name: Fix permissions for mocha
+          command: chmod +x node_modules/.bin/mocha
+      - run:
           name: Run tests
           command: npm test
 
