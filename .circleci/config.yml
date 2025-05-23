@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@7.1.0
+  discord: antonioned/discord@0.1.0
 
 jobs:
   create-environment:
@@ -13,6 +13,8 @@ jobs:
       - run:
           name: Install dependencies
           command: npm install
+      - discord/notify:
+          webhook: https://circleci.com/developer/orbs/orb/antonioned/discord
 
   run-tests:
     docker:
