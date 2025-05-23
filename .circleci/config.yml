@@ -14,7 +14,7 @@ jobs:
           name: Install dependencies
           command: npm install
       - discord/status:
-          webhook: https://circleci.com/developer/orbs/orb/antonioned/discord
+          webhook: "$https://circleci.com/developer/orbs/orb/antonioned/discord"
 
   run-tests:
     docker:
