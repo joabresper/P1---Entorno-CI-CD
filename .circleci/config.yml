@@ -31,8 +31,8 @@ jobs:
           command: npm test
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien."
-          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados."
+          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien.\nUsuario: ${CIRCLE_PIPELINE_USERNAME}"
+          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\nUsuario: ${CIRCLE_PIPELINE_USERNAME}"
 
 workflows:
   my-test:
