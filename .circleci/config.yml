@@ -16,7 +16,7 @@ jobs:
       - discord/status:
           fail_only: true
           webhook: "${DISCORD_WEBHOOK}"
-          failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación.\nUsuario: ${CIRCLE_PIPELINE_USERNAME}"
+          failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación.\nUsuario: ${CIRCLE_USERNAME}"
 
   run-tests:
     docker:
@@ -31,8 +31,8 @@ jobs:
           command: npm test
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien. | Usuario: ${CIRCLE_PIPELINE_USERNAME}"
-          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados. | Usuario: ${CIRCLE_PIPELINE_USERNAME}"
+          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien. \nUsuario: ${CIRCLE_USERNAME}"
+          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados. \nUsuario: ${CIRCLE_USERNAME}"
 
 workflows:
   my-test:
@@ -41,3 +41,4 @@ workflows:
       - run-tests:
           requires:
             - create-environment
+# asd
