@@ -46,6 +46,10 @@ jobs:
           name: Deploy in Render
           command: |
             curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+      - discord/status:
+          webhook: "${DISCORD_WEBHOOK}"
+          success_message: "**✅ Se inicio correctamente el deploy!**"
+          failure_message: "**❌ Fallo en la inicializacion del deploy.**"
 
 workflows:
   my-test:
