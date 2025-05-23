@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import saludar from '../src/saludo';
+import saludar from '../src/saludo.js';
 
 describe('saludar', () => {
   let clock;
