@@ -16,11 +16,9 @@ jobs:
 
   run-tests:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:22.12.0
     steps:
       - checkout
-      - node/install:
-          install-npm: true
       - run:
           name: Install dependencies
           command: npm install
