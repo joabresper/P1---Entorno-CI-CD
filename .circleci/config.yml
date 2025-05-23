@@ -34,6 +34,3 @@ workflows:
   first-test:
     jobs:
       - create-environment
-      - run-tests:
-          requires:
-            - create-environment
