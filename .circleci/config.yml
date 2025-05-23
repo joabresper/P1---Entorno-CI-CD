@@ -16,7 +16,7 @@ jobs:
       - discord/status:
           fail_only: true
           webhook: "${DISCORD_WEBHOOK}"
-          custom: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación."
+          failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación."
 
   run-tests:
     docker:
