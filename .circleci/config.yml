@@ -10,7 +10,7 @@ jobs:
     steps:
       - checkout
       - run: node --version
-      - run:
+      - run: 
           name: Install dependencies
           command: npm install
       - discord/notify:
