@@ -6,11 +6,9 @@ orbs:
 jobs:
   create-environment:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:22.12.0
     steps:
       - checkout
-      - node/install:
-          node-version: "16.14.0"
       - run: node --version
       - run:
           name: Install dependencies
