@@ -32,7 +32,7 @@ jobs:
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
           success: "**✅ Pruebas completadas con éxito!** Todo salió bien."
-          failure: "**❌ Las pruebas fallaron.** Revisá los resultados.
+          failure: "**❌ Las pruebas fallaron.** Revisá los resultados."
 
 workflows:
   my-test:
