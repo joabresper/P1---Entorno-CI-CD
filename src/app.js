@@ -1,5 +1,5 @@
 import express from 'express';
-import saludar from 'src/saludo.js';
+import saludar from './saludo.js';
 
 const app = express();
 
