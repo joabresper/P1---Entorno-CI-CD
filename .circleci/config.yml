@@ -4,7 +4,7 @@ orbs:
   node: circleci/node@7.1.0
 
 jobs:
-  create-enviroment:
+  create-environment:
     docker:
       - image: cimg/base:stable
     steps:
@@ -33,7 +33,7 @@ jobs:
 workflows:
   first-test:
     jobs:
-      - create-enviroment
+      - create-environment
       - run-tests:
           requires:
-            - create-enviroment
+            - create-environment
