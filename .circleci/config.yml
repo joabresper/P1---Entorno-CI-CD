@@ -129,6 +129,6 @@ workflows:
       # - check-deploy-status:
       #     requires:
       #       - deploy
-      - bombardier-test:
+      - bombardier-test
           # requires:
           #   - check-deploy-status
