@@ -46,7 +46,7 @@ jobs:
           name: Move to done trello card
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
-            console.log("Commit message: ", COMMIT_MSG)
+            echo "Commit message: $COMMIT_MSG"
 deploy:
     docker:
       - image: cimg/node:22.12.0
