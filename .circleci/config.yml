@@ -45,10 +45,7 @@ jobs:
       - run:
           name: Move to done trello card
           command: |
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}" \
-            | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' | head -n 1)
-
-            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}"
+            CARD_ID=$(curl --request GET \ --url 'https://api.trello.com/1/boards/{TRELLO_DONE_LIST_ID}/cards?key={TRELLO_API_KEY}&token={TRELLO_SECRET_KEY}')
   deploy:
     docker:
       - image: cimg/node:22.12.0
