@@ -47,8 +47,11 @@ jobs:
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
 
-            CARDS=$(curl -s "https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards/all?key=$TRELLO_API_KEY&token=$TRELLO_SECRET_TOKEN")
-            echo "$CARDS"
+            CARD_ID=$(curl -s "https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards/all?key=$TRELLO_API_KEY&token=$TRELLO_SECRET_TOKEN") \
+              | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' \
+              | head -n 1
+            
+            echo "CARD_ID: $CARD_ID"
 
 deploy:
     docker:
