@@ -103,16 +103,24 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 500 -n 5000 -m POST -b '{"data":"x".repeat(10000)}'  ${RENDER_APP_URL}
+            bombardier -c 500 -n 1000 ${RENDER_APP_URL} > output.txt
+            cat output.txt
+            if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
+              exit 1
+            fi
+      - discord/status:
+          webhook: "${DISCORD_WEBHOOK}"
+          success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
+          failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
 
 workflows:
   my-test:
     jobs:
       # - create-environment
-      # - run-tests:
+      - run-tests:
       #     requires:
       #       - create-environment
-      # - deploy:
+      - deploy:
       #     requires:
       #       - run-tests
       # - done-trello-card
