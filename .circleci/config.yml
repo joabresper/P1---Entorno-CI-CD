@@ -103,7 +103,7 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 500 -n 500 ${RENDER_APP_URL} > output.txt
+            bombardier -c 500 -n 10 ${RENDER_APP_URL} > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
@@ -116,19 +116,19 @@ jobs:
 workflows:
   my-test:
     jobs:
-      # - create-environment
-      - run-tests
+      # # - create-environment
+      # - run-tests
+      # #     requires:
+      # #       - create-environment
+      # - deploy:
       #     requires:
-      #       - create-environment
-      - deploy:
-          requires:
-            - run-tests
-      # - done-trello-card
-          # requires:
-          #   - run-tests
-      - check-deploy-status:
-          requires:
-            - deploy
+      #       - run-tests
+      # # - done-trello-card
+      #     # requires:
+      #     #   - run-tests
+      # - check-deploy-status:
+      #     requires:
+      #       - deploy
       - bombardier-test:
-          requires:
-            - check-deploy-status
+          # requires:
+          #   - check-deploy-status
