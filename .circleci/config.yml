@@ -47,8 +47,8 @@ jobs:
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
 
-            echo (curl -s 'https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards/all?key=$TRELLO_API_KEY&token=$TRELLO_SECRET_KEY')
-            echo "hola"
+            asd=$(curl -s 'https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards/all?key=$TRELLO_API_KEY&token=$TRELLO_SECRET_KEY')
+            echo "$asd"
             echo "CARD_ID: $CARD_ID"
 
 deploy:
