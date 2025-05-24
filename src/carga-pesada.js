@@ -10,3 +10,11 @@ export function calcularPrimos(count, current = 2, primos = []) {
   if (esPrimo(current)) primos.push(current);
   return calcularPrimos(count, current + 1, primos);
 }
+
+export function consumirMemoria(MB) {
+  const arr = [];
+  for (let i = 0; i < MB * 1024 * 1024 / 8; i++) {
+    arr.push(Math.random());
+  }
+  return arr;
+}
