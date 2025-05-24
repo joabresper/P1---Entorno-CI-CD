@@ -59,7 +59,7 @@ jobs:
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
           fail_only: true
-          failure_message: "Targeta nombre: **$(git log -1 --pretty=%B)** no entontrada. No se pudo mover a Hecho."
+          failure_message: "Targeta nombre: **$(git log -1 --pretty=%B)** no entontrada. No se pudo mover a Hecho en el tablero."
 
 deploy:
     docker:
