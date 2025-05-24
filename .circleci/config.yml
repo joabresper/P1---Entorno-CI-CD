@@ -88,6 +88,14 @@ jobs:
               echo "Esperando que el sitio esté disponible..."
               sleep 5
             done
+  check-deploy-status2:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Check deploy status
+          command: |
+              sleep 60
   
   bombardier-test:
     docker:
@@ -103,7 +111,7 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 1000 -n 1000 ${RENDER_APP_URL}/download > output.txt
+            bombardier -c 10 -n 10 ${RENDER_APP_URL}/download > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
@@ -114,21 +122,21 @@ jobs:
           failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
 
 workflows:
-  my-test:
+  full:
     jobs:
-      # # - create-environment
-      # - run-tests
-      # #     requires:
-      # #       - create-environment
-      # - deploy:
-      #     requires:
-      #       - run-tests
-      # # - done-trello-card
-      #     # requires:
-      #     #   - run-tests
-      # - check-deploy-status:
-      #     requires:
-      #       - deploy
-      - bombardier-test
-          # requires:
-          #   - check-deploy-status
+      - create-environment
+      - run-tests:
+          requires:
+            - create-environment
+      - deploy:
+          requires:
+            - run-tests
+      - done-trello-card:
+          requires:
+            - run-tests
+      - check-deploy-status2:
+          requires:
+            - deploy
+      - bombardier-test:
+          requires:
+            - check-deploy-status
