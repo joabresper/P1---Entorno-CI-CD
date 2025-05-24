@@ -103,7 +103,7 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 50 -n 10 ${RENDER_APP_URL}
+            bombardier -c 50 -n 1000 ${RENDER_APP_URL}
 
 workflows:
   my-test:
