@@ -103,6 +103,7 @@ workflows:
       # - deploy:
       #     requires:
       #       - run-tests
-      - done-trello-card
+      # - done-trello-card
           # requires:
           #   - run-tests
+        -test-deploy:
