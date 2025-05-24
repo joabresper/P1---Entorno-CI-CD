@@ -89,7 +89,7 @@ jobs:
               sleep 5
             done
   
-  bombardier-deploy:
+  bombardier-test:
     docker:
       - image: cimg/base:stable
     steps:
@@ -99,8 +99,11 @@ jobs:
             curl -L https://github.com/codesenberg/bombardier/releases/download/v1.2.5/bombardier-linux-amd64 -o bombardier
             chmod +x bombardier
             sudo mv bombardier /usr/local/bin/
-
-
+            echo "Bombardier installed successfully"
+      - run:
+          name: Run concurrency test with Bombardier
+          command: |
+            bombardier -c 50 -n 10 {RENDER_APP_URL}
 
 workflows:
   my-test:
@@ -115,4 +118,4 @@ workflows:
       # - done-trello-card
           # requires:
           #   - run-tests
-      - bombardier-deploy
+      - bombardier-test
