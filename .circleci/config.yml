@@ -47,7 +47,7 @@ jobs:
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
 
-            asd=$(curl -s 'https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards/all?key=$TRELLO_API_KEY&token=$TRELLO_SECRET_KEY')
+            asd=$(curl -s 'https://api.trello.com/1/boards/rSRh5VAY/cards/all?key=720ab680f0e650579d81bec987f5fcf3&token=ATTAf77cf189fa0417c0de18ee83ce8f16799d61b9357f36de257be4eccc155c0dddFA1F7BE1')
             echo "$asd"
             echo "CARD_ID: $CARD_ID"
 
