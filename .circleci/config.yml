@@ -59,7 +59,7 @@ jobs:
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
           fail_only: true
-          failure_message: "Targeta **$COMMIT_MSG** no entontrada. No se pudo mover a Hecho."
+          failure_message: "Targeta **${COMMIT_MSG}** no entontrada. No se pudo mover a Hecho."
 
 deploy:
     docker:
