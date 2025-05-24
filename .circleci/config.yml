@@ -46,6 +46,7 @@ jobs:
           name: Move to done trello card
           command: |
             CARD_ID=$(curl --request GET \ --url 'https://api.trello.com/1/boards/{TRELLO_DONE_LIST_ID}/cards?key={TRELLO_API_KEY}&token={TRELLO_SECRET_KEY}')
+            echo $CARD_ID
   deploy:
     docker:
       - image: cimg/node:22.12.0
