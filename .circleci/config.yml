@@ -46,7 +46,12 @@ jobs:
           name: Move to done trello card
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
-            echo "Commit message: $COMMIT_MSG"
+
+            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}" \
+              | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' | head -n 1)
+            
+            echo "CARD_ID: $CARD_ID"
+
 deploy:
     docker:
       - image: cimg/node:22.12.0
