@@ -95,6 +95,7 @@ jobs:
     steps:
       - run:
           name: Install Bombardier
+          command: |
             curl -L https://github.com/codesenberg/bombardier/releases/download/v1.2.5/bombardier-linux-amd64 -o bombardier
             chmod +x bombardier
             sudo mv bombardier /usr/local/bin/
