@@ -34,6 +34,21 @@ jobs:
           success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
   
+  done-trello-card:
+    docker:
+      - image: cimg/node:22.12.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Move to done trello card
+          command: |
+            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}" \
+            | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' | head -n 1)
+
+            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}"
   deploy:
     docker:
       - image: cimg/node:22.12.0
@@ -58,6 +73,9 @@ workflows:
       - run-tests:
           requires:
             - create-environment
-      - deploy:
+      # - deploy:
+      #     requires:
+      #       - run-tests
+      - done-trello-card:
           requires:
             - run-tests
