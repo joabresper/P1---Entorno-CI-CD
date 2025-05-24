@@ -50,10 +50,13 @@ jobs:
             CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}" \
               | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' | head -n 1)
 
-            [ -z "$CARD_ID" ] && echo "Tarjeta no encontrada" && exit 0
+            if [ -z "$CARD_ID" ]; then
+              echo "Tarjeta no encontrada"
+              exit 0
+            fi
 
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}"
-  deploy:
+deploy:
     docker:
       - image: cimg/node:22.12.0
     steps:
