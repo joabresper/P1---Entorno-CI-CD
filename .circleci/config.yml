@@ -51,15 +51,10 @@ jobs:
               | jq -r --arg msg "${COMMIT_MSG}" '.[] | select(.name | contains($msg)) | .id' \
               | head -n 1)
 
-            if [ -z "$CARD_ID" ]; then
-              exit 1
-            fi
-
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
-      - discord/status:
-          webhook: "${DISCORD_TRELLO_WEBHOOK}"
-          fail_only: true
-          failure_message: "Targeta nombre: **$(git log -1 --pretty=%B)** no entontrada. No se pudo mover a Hecho en el tablero."
+      # - discord/status:
+      #     webhook: "${DISCORD_TRELLO_WEBHOOK}"
+      #     failure_message: "Targeta \"**$(COMMIT_MSG)**\" no entontrada. No se pudo mover a Hecho en el tablero."
 
 deploy:
     docker:
