@@ -117,13 +117,18 @@ workflows:
   my-test:
     jobs:
       # - create-environment
-      - run-tests:
+      - run-tests
       #     requires:
       #       - create-environment
       - deploy:
-      #     requires:
-      #       - run-tests
+          requires:
+            - run-tests
       # - done-trello-card
           # requires:
           #   - run-tests
-      - bombardier-test
+      - check-deploy-status:
+          requires:
+            - deploy
+      - bombardier-test:
+          requires:
+            - check-deploy-status
