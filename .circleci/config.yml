@@ -57,8 +57,8 @@ jobs:
 
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
       - discord/status:
+          webhook: "${DISCORD_TRELLO_WEBHOOK}"
           fail_only: true
-          channel: "${DISCORD_TRELLO_CHANNEL_ID}"
           failure_message: "Targeta nombre: **$(git log -1 --pretty=%B)** no entontrada. No se pudo mover a Hecho en el tablero."
 
 deploy:
