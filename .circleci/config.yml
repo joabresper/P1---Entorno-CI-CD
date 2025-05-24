@@ -47,7 +47,8 @@ jobs:
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
 
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}")
+            CARD_ID=$(curl --request GET \
+              --url 'https://api.trello.com/1/boards/{id}/cards/{filter}?key=APIKey&token=APIToken')
             
             echo "CARD_ID: $CARD_ID"
 
