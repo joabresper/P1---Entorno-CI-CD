@@ -47,13 +47,7 @@ jobs:
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
 
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}" \
-              | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' | head -n 1)
-            
-            if [ -z "$CARD_ID" ]; then
-              echo "No se encontró la tarjeta de Trello."
-              exit 1
-            fi
+            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}"
             
             echo "CARD_ID: $CARD_ID"
 
