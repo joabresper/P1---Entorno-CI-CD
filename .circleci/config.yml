@@ -73,6 +73,22 @@ jobs:
           success_message: "**✅ Se inicio correctamente el deploy!**"
           failure_message: "**❌ Fallo en la inicializacion del deploy.**"
   
+  check-deploy-status:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Check deploy status
+          command: |
+            for i in {1..10}; do
+              if curl -sSf ${RENDER_APP_URL} > /dev/null; then
+                echo "Sitio activo"
+                break
+              fi
+              echo "Esperando que el sitio esté disponible..."
+              sleep 5
+            done
+  
   test-deploy:
     docker:
       - image: cimg/node:22.12.0
@@ -93,6 +109,8 @@ jobs:
               sleep 5
             done
 
+
+
 workflows:
   my-test:
     jobs:
@@ -106,4 +124,4 @@ workflows:
       # - done-trello-card
           # requires:
           #   - run-tests
-      - test-deploy
+      - check-deploy-status
