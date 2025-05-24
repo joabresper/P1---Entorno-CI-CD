@@ -72,6 +72,26 @@ deploy:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ Se inicio correctamente el deploy!**"
           failure_message: "**❌ Fallo en la inicializacion del deploy.**"
+  
+  test-deploy:
+    docker:
+      - image: cimg/node:22.12.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Wait for deploy finish
+          command: |
+            for i in {1..10}; do
+              if curl -sSf ${RENDER_APP_URL} > /dev/null; then
+                echo "Sitio activo"
+                break
+              fi
+              echo "Esperando que el sitio esté disponible..."
+              sleep 5
+            done
 
 workflows:
   my-test:
