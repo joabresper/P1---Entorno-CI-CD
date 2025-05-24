@@ -3,7 +3,7 @@ import { calcularPrimos } from './primos.js';
 function saludar() {
 	const hora = new Date().getHours();
 
-	calcularPrimos(700);
+	calcularPrimos(845)
   
 	if (hora >= 6 && hora < 12) {
 	  return '¡Buenos días!🌞';
@@ -17,4 +17,3 @@ function saludar() {
   }
 
 export default saludar;
-  
