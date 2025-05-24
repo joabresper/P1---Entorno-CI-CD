@@ -106,4 +106,4 @@ workflows:
       # - done-trello-card
           # requires:
           #   - run-tests
-      -test-deploy
+      - test-deploy
