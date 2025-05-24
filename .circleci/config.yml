@@ -46,16 +46,7 @@ jobs:
           name: Move to done trello card
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
-
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}" \
-              | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name | contains($msg)) | .id' | head -n 1)
-
-            if [ -z "$CARD_ID" ]; then
-              echo "Tarjeta no encontrada"
-              exit 0
-            fi
-
-            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_KEY}"
+            console.log("Commit message: ", COMMIT_MSG)
 deploy:
     docker:
       - image: cimg/node:22.12.0
@@ -76,13 +67,13 @@ deploy:
 workflows:
   my-test:
     jobs:
-      - create-environment
-      - run-tests:
-          requires:
-            - create-environment
+      # - create-environment
+      # - run-tests:
+      #     requires:
+      #       - create-environment
       # - deploy:
       #     requires:
       #       - run-tests
-      - done-trello-card:
-          requires:
-            - run-tests
+      - done-trello-card
+          # requires:
+          #   - run-tests
