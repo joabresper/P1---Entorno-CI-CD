@@ -88,6 +88,7 @@ jobs:
               echo "Esperando que el sitio esté disponible..."
               sleep 5
             done
+
   check-deploy-status2:
     docker:
       - image: cimg/base:stable
@@ -139,4 +140,4 @@ workflows:
             - deploy
       - bombardier-test:
           requires:
-            - check-deploy-status
+            - check-deploy-status2
