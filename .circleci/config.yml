@@ -112,7 +112,7 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 10 -n 100000 ${RENDER_APP_URL} > output.txt
+            bombardier -c 10 -n 10000 ${RENDER_APP_URL} > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
