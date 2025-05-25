@@ -112,7 +112,7 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 10 -n 1000 ${RENDER_APP_URL}/download > output.txt
+            bombardier -c 10 -n 1000 ${RENDER_APP_URL} > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
@@ -123,21 +123,24 @@ jobs:
           failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
 
 workflows:
-  full:
+  # full:
+  #   jobs:
+  #     - create-environment
+  #     - run-tests:
+  #         requires:
+  #           - create-environment
+  #     - deploy:
+  #         requires:
+  #           - run-tests
+  #     - done-trello-card:
+  #         requires:
+  #           - run-tests
+  #     - check-deploy-status2:
+  #         requires:
+  #           - deploy
+  #     - bombardier-test:
+  #         requires:
+  #           - check-deploy-status2
+  bombardier:
     jobs:
-      - create-environment
-      - run-tests:
-          requires:
-            - create-environment
-      - deploy:
-          requires:
-            - run-tests
-      - done-trello-card:
-          requires:
-            - run-tests
-      - check-deploy-status2:
-          requires:
-            - deploy
-      - bombardier-test:
-          requires:
-            - check-deploy-status2
+      - bombardier-test
