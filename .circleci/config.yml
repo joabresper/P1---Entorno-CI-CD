@@ -153,6 +153,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: npm install
+      - run:
           name: Ejecutar análisis SonarCloud
           command: npx sonar-scanner
       - run:
