@@ -4,6 +4,7 @@ node_image: &node_image cimg/node:22.12.0
 
 orbs:
   discord: antonioned/discord@0.1.0
+  sonarcloud: sonarsource/sonarcloud@3.0
 
 jobs:
   create-environment:
@@ -156,14 +157,7 @@ jobs:
       - run:
           name: Install dependencies
           command: npm install
-      - run:
-          name: Ejecutar análisis SonarCloud
-          command: npx sonar-scanner
-      - run:
-          name: Verificar estado del Quality Gate
-          command: |
-            sleep 15
-            STATUS=$(curl -s -u ${SONAR_TOKEN}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}" | jq -r '.projectStatus.status')
+      - sonarcloud/scan
 
 
 workflows:
