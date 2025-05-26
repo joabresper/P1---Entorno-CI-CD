@@ -154,19 +154,26 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Instalar Java
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y openjdk-11-jdk
+            java -version
+      - run:
+          name: Instalar jq
+          command: sudo apt-get install -y jq
+      - run:
+          name: Instalar dependencias
           command: npm install
       - run:
-          name: Install jq
-          command: sudo apt-get update && sudo apt-get install -y jq
+          name: Ejecutar tests con cobertura
+          command: npm test
       - run:
-          name: Ejecutar análisis SonarCloud
-          command: npx sonar-scanner
+          name: Dar permiso a sonar-scanner
+          command: chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner
       - run:
-          name: Verificar estado del Quality Gate
-          command: |
-            sleep 15
-            STATUS=$(curl -s -u ${SONAR_TOKEN}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}" | jq -r '.projectStatus.status')
+          name: Ejecutar Sonar Scanner
+          command: npx sonar-scanner -Dsonar.login=$SONAR_TOKEN
 
 
 workflows:
