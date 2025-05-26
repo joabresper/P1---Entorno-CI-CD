@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"start": "node src/index.js",
-		"test": "mocha"
+		"test": "mocha",
+		"sonar": "sonar-scanner"
 	},
 	"dependencies": {
 		"express": "^5.1.0"
