@@ -15,6 +15,7 @@
 		"chai-http": "^5.1.2",
 		"mocha": "^11.2.2",
 		"sinon": "^20.0.0",
+		"sonar-scanner": "^3.1.0",
 		"supertest": "^7.1.1"
 	}
 }
