@@ -212,3 +212,6 @@ workflows:
   # sonarcloud:
   #   jobs:
   #     - sonarcloud
+    filters:
+      branches:
+        only: develop
