@@ -149,7 +149,7 @@ jobs:
           failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
   sonarqube:
     docker:
-      - image: *node_image
+      - image: cimg/node:22.12.0
     steps:
       - checkout
       - run:
