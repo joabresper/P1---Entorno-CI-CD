@@ -171,7 +171,7 @@ jobs:
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ SonarCloud análisis completado con éxito!**\\nLa calidad del código es buena!\\nCalidad del código: **${status}**"
-          failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código.\\nCalidad del código: **${status}**"
+          failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código.\\nCalidad del código: **${status}**" 
 
 
 workflows:
