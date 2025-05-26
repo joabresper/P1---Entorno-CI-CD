@@ -158,6 +158,20 @@ jobs:
           name: Install dependencies
           command: npm install
       - sonarcloud/scan
+      - run:
+          name: Check SonarCloud Quality Gate status
+          command: |
+            response=$(curl -s -u ${SONAR_TOKEN}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}")
+            status=$(echo $response | jq -r '.projectStatus.status')
+            echo "Quality Gate status: $status"
+            if [ "$status" != "OK" ]; then
+              echo "Quality Gate failed!"
+              exit 1
+            fi
+      - discord/status:
+          webhook: "${DISCORD_WEBHOOK}"
+          success_message: "**✅ SonarCloud análisis completado con éxito!**\\nLa calidad del código es buena!\\nCalidad del código: **${status}**"
+          failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código.\\nCalidad del código: **${status}**"
 
 
 workflows:
