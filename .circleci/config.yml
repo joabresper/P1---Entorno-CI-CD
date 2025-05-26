@@ -147,6 +147,7 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
           failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
+  
   sonarqube:
     docker:
       - image: cimg/node:22.12.0
@@ -155,6 +156,9 @@ jobs:
       - run:
           name: Install dependencies
           command: npm install
+      - run:
+          name: Install jq
+          command: sudo apt-get update && sudo apt-get install -y jq
       - run:
           name: Ejecutar análisis SonarCloud
           command: npx sonar-scanner
