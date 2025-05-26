@@ -1,5 +1,7 @@
 version: 2.1
 
+node_image: &node_image cimg/node:22.12.0
+
 orbs:
   discord: antonioned/discord@0.1.0
 
@@ -98,7 +100,7 @@ jobs:
           command: |
               sleep 60
   
-  bombardier-test:
+  bombardier-test-pass:
     docker:
       - image: cimg/base:stable
     steps:
@@ -121,6 +123,44 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
           failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
+  
+  bombardier-test-fail:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Install Bombardier
+          command: |
+            curl -L https://github.com/codesenberg/bombardier/releases/download/v1.2.5/bombardier-linux-amd64 -o bombardier
+            chmod +x bombardier
+            sudo mv bombardier /usr/local/bin/
+            echo "Bombardier installed successfully"
+      - run:
+          name: Run concurrency test with Bombardier
+          command: |
+            bombardier -c 500 -n 10000 ${RENDER_APP_URL} > output.txt
+            cat output.txt
+            if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
+              exit 1
+            fi
+      - discord/status:
+          webhook: "${DISCORD_WEBHOOK}"
+          success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
+          failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
+  sonarqube:
+    docker:
+      - image: *node_image
+    steps:
+      - checkout
+      - run:
+          name: Ejecutar análisis SonarCloud
+          command: npx sonar-scanner
+      - run:
+          name: Verificar estado del Quality Gate
+          command: |
+            sleep 15
+            STATUS=$(curl -s -u ${SONAR_TOKEN}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}" | jq -r '.projectStatus.status')
+
 
 workflows:
   # full:
@@ -141,6 +181,13 @@ workflows:
   #     - bombardier-test:
   #         requires:
   #           - check-deploy-status2
-  bombardier:
+  # bombardier-pass:
+  #   jobs:
+  #     - bombardier-test-pass
+
+  # bombardier-fail:
+  #   jobs:
+  #     - bombardier-test-fail
+  sonarqube:
     jobs:
-      - bombardier-test
+      - sonarqube
