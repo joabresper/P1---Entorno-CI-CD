@@ -149,7 +149,7 @@ jobs:
           success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
           failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
   
-  sonarqube:
+  sonarcloud:
     docker:
       - image: cimg/node:22.12.0
     steps:
@@ -177,29 +177,31 @@ jobs:
             echo "Status loaded: $QUALITY_GATE_STATUS"
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ SonarCloud análisis completado con éxito!**\\nLa calidad del código es buena!\\nCalidad del código: **${QUALITY_GATE_STATUS}**"
-          failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código.\\nCalidad del código: **${QUALITY_GATE_STATUS}**" 
-
+          success_message: "**✅ SonarCloud análisis completado con éxito!**\\nLa calidad del código es buena!"
+          failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
 
 workflows:
-  # full:
-  #   jobs:
-  #     - create-environment
-  #     - run-tests:
-  #         requires:
-  #           - create-environment
-  #     - deploy:
-  #         requires:
-  #           - run-tests
-  #     - done-trello-card:
-  #         requires:
-  #           - run-tests
-  #     - check-deploy-status2:
-  #         requires:
-  #           - deploy
-  #     - bombardier-test:
-  #         requires:
-  #           - check-deploy-status2
+  full:
+    jobs:
+      - create-environment
+      - run-tests:
+          requires:
+            - create-environment
+      - sonarcloud:
+          requires:
+            - run-tests
+      - deploy:
+          requires:
+            - sonarcloud
+      - done-trello-card:
+          requires:
+            - sonarcloud
+      - check-deploy-status2:
+          requires:
+            - deploy
+      - bombardier-test-pass:
+          requires:
+            - check-deploy-status2
   # bombardier-pass:
   #   jobs:
   #     - bombardier-test-pass
