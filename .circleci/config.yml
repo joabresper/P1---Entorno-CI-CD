@@ -209,6 +209,6 @@ workflows:
   # bombardier-fail:
   #   jobs:
   #     - bombardier-test-fail
-  sonarqube:
-    jobs:
-      - sonarqube
+  # sonarcloud:
+  #   jobs:
+  #     - sonarcloud
