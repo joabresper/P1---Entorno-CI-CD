@@ -83,6 +83,7 @@ jobs:
             curl --request POST \
               --url "https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${ENCODED_TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
               --header 'Accept: application/json'
+
   trello-card-2da-opt:
     docker:
       - image: cimg/base:stable
@@ -91,6 +92,7 @@ jobs:
       - run:
           name: Prueba short id
           command: |
+            COMMIT_MSG=$(git log -1 --pretty=%B)
             CARD_SHORT_ID=$(echo "$COMMIT_MSG" | grep -oP '\[\K[^\]]+')
 
             curl --request GET \
