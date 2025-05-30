@@ -79,6 +79,7 @@ jobs:
 
             TEXT="CircleCI detectó un error en << parameters.message >> |  GitUser: ${AUTHOR}"
             echo ${TEXT}
+            echo $TRELLO_SECRET_TOKEN
 
             curl --request POST \
               --url 'https://api.trello.com/1/cards/${CARD_ID}/checklists?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}'
