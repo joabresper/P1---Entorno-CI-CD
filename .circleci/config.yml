@@ -236,7 +236,7 @@ workflows:
       - check-deploy-status2:
           requires:
             - deploy
-      - bombardier-test-pass:
+      - bombardier-test-fail:
           requires:
             - check-deploy-status2 
   # bombardier-pass:
