@@ -78,6 +78,7 @@ jobs:
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_ERRORS_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
 
             TEXT="CircleCI detectó un error en << parameters.message >> |  GitUser: ${AUTHOR}"
+            echo ${TEXT}
 
             curl --request POST \
               --url 'https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}' \
