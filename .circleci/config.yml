@@ -229,7 +229,7 @@ workflows:
   # sonarcloud:
   #   jobs:
   #     - sonarcloud
-    filters:
-      branches:
-        only:
-          - develop
+    # filters:
+    #   branches:
+    #     only:
+    #       - develop
