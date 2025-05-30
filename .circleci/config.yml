@@ -96,7 +96,7 @@ jobs:
             COMMIT_MSG=$(git log -1 --pretty=%B)
             echo "Commit message: $COMMIT_MSG"
             CARD_SHORT_ID=$(echo "$COMMIT_MSG" | sed -n 's/.*\[\([^]]*\)\].*/\1/p')
-            echo "Short ID de la tarjeta: $CARD_SHORT_ID"
+            echo "Short ID de la tarjeta: $CARD_SHORT_ID" 
 
             curl --request GET \
               --url "https://api.trello.com/1/cards/${CARD_SHORT_ID}?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
