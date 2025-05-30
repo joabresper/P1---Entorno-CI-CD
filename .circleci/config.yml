@@ -92,6 +92,7 @@ jobs:
       - run:
           name: Prueba short id
           command: |
+            echo "Obteniendo short id de la tarjeta de Trello..."
             COMMIT_MSG=$(git log -1 --pretty=%B)
             CARD_SHORT_ID=$(echo "$COMMIT_MSG" | grep -oP '\[\K[^\]]+')
 
