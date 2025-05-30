@@ -206,7 +206,7 @@ workflows:
           requires:
             - create-environment
       - move-trello-card-to-errors:
-          message: Pruebas
+          message: "Pruebas"
           requires:
             - run-tests:
               - failed
