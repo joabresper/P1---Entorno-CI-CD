@@ -206,36 +206,36 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
 
 workflows:
-  full:
-    jobs:
-      - create-environment
-      - run-tests:
-          requires:
-            - create-environment
-      - move-trello-card-to-errors:
-          message: "Pruebas"
-          requires:
-            - run-tests:
-              - failed
-      - sonarcloud:
-          requires:
-            - run-tests
-      - move-trello-card-to-errors:
-          requires:
-            - sonarcloud:
-              - failed
-      - deploy:
-          requires:
-            - sonarcloud
-      - move-trello-card-to-done:
-          requires:
-            - sonarcloud
-      - check-deploy-status2:
-          requires:
-            - deploy
-      - bombardier-test-pass:
-          requires:
-            - check-deploy-status2 
+  # full:
+  #   jobs:
+  #     - create-environment
+  #     - run-tests:
+  #         requires:
+  #           - create-environment
+  #     - move-trello-card-to-errors:
+  #         message: "Pruebas"
+  #         requires:
+  #           - run-tests:
+  #             - failed
+  #     - sonarcloud:
+  #         requires:
+  #           - run-tests
+  #     - move-trello-card-to-errors:
+  #         requires:
+  #           - sonarcloud:
+  #             - failed
+  #     - deploy:
+  #         requires:
+  #           - sonarcloud
+  #     - move-trello-card-to-done:
+  #         requires:
+  #           - sonarcloud
+  #     - check-deploy-status2:
+  #         requires:
+  #           - deploy
+  #     - bombardier-test-pass:
+  #         requires:
+  #           - check-deploy-status2 
   # bombardier-pass:
   #   jobs:
   #     - bombardier-test-pass
@@ -250,3 +250,7 @@ workflows:
     #   branches:
     #     only:
     #       - develop
+  trello:
+    jobs:
+      - move-trello-card-to-errors:
+          message: "Error en el pipeline"
