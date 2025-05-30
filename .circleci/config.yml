@@ -37,10 +37,11 @@ jobs:
           success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
   
-  done-trello-card:
+  move-trello-card-to-done:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
       - run:
           name: Move card to trello done list
           command: |
@@ -55,7 +56,7 @@ jobs:
       #     webhook: "${DISCORD_TRELLO_WEBHOOK}"
       #     failure_message: "Targeta \"**$(COMMIT_MSG)**\" no entontrada. No se pudo mover a Hecho en el tablero."
 
-  errors-trello-card:
+  move-trello-card-to-errors:
     docker:
       - image: cimg/base:stable
     steps:
@@ -199,23 +200,23 @@ workflows:
       - run-tests:
           requires:
             - create-environment
-      - errors-trello-card:
+      - move-trello-card-to-errors:
           requires:
             - run-tests:
               - failed
       - sonarcloud:
           requires:
             - run-tests
-      - deploy:
-          requires:
-            - sonarcloud
-      - done-trello-card:
-          requires:
-            - sonarcloud
-      - errors-trello-card:
+      - move-trello-card-to-errors:
           requires:
             - sonarcloud:
               - failed
+      - deploy:
+          requires:
+            - sonarcloud
+      - move-trello-card-to-done:
+          requires:
+            - sonarcloud
       - check-deploy-status2:
           requires:
             - deploy
