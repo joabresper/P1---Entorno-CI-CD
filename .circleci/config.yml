@@ -39,14 +39,10 @@ jobs:
   
   done-trello-card:
     docker:
-      - image: cimg/node:22.12.0
+      - image: cimg/base:stable
     steps:
-      - checkout
       - run:
-          name: Install dependencies
-          command: npm install
-      - run:
-          name: Move to done trello card
+          name: Move card to trello done list
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
 
@@ -58,6 +54,21 @@ jobs:
       # - discord/status:
       #     webhook: "${DISCORD_TRELLO_WEBHOOK}"
       #     failure_message: "Targeta \"**$(COMMIT_MSG)**\" no entontrada. No se pudo mover a Hecho en el tablero."
+
+  errors-trello-card:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      -run:
+          name: Move card to trello errors list 
+          command: |
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+
+            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards/all?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
+              | jq -r --arg msg "${COMMIT_MSG}" '.[] | select(.name | contains($msg)) | .id' \
+              | head -n 1)
+
+            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_ERRORS_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
 
   deploy:
     docker:
@@ -196,6 +207,12 @@ workflows:
       - done-trello-card:
           requires:
             - sonarcloud
+      - errors-trello-card:
+          requires:
+            - run-tests:
+              - failed
+            - sonarcloud:
+              - failed
       - check-deploy-status2:
           requires:
             - deploy
