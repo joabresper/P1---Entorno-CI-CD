@@ -59,7 +59,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      -run:
+      - run:
           name: Move card to trello errors list 
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
