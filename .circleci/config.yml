@@ -75,7 +75,7 @@ jobs:
             AUTHOR=$(git log -1 --pretty='%an')
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_SHORT_ID}?idList=${<< parameters.trello_list >>}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
             
-            if [ parameters.trello_list == "TRELLO_ERRORS_LIST_ID" ]; then
+            if [ << parameters.trello_list >> == "TRELLO_ERRORS_LIST_ID" ]; then
               TEXT="CircleCI detectó un error en << parameters.message >> | GitHubUser: ${AUTHOR}"
               ENCODED_TEXT=$(printf "%s" "${TEXT}" | jq -sRr @uri)
 

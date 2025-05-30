@@ -1,3 +1,3 @@
 curl "https://api.trello.com/1/cards/6839bec99d118610b1969ff6?key=720ab680f0e650579d81bec987f5fcf3&token=ATTAf77cf189fa0417c0de18ee83ce8f16799d61b9357f36de257be4eccc155c0dddFA1F7BE1"
 
-curl --request POST --url 'https://api.trello.com/1/cards/6839bec99d118610b1969ff6/actions/comments?text=HolaComoEstasVos&key=720ab680f0e650579d81bec987f5fcf3&token=ATTAf77cf189fa0417c0de18ee83ce8f16799d61b9357f36de257be4eccc155c0dddFA1F7BE1' --header 'Accept: application/json'
+curl --request POST --url "https://api.trello.com/1/cards/wKVIiKmh/actions/comments?text=HolaComoEstasVos&key=720ab680f0e650579d81bec987f5fcf3&token=ATTAf77cf189fa0417c0de18ee83ce8f16799d61b9357f36de257be4eccc155c0dddFA1F7BE1" --header 'Accept: application/json'
