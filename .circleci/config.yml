@@ -59,6 +59,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
       - run:
           name: Move card to trello errors list 
           command: |
