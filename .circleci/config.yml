@@ -198,6 +198,10 @@ workflows:
       - run-tests:
           requires:
             - create-environment
+      - errors-trello-card:
+          requires:
+            - run-tests:
+              - failed
       - sonarcloud:
           requires:
             - run-tests
@@ -209,8 +213,6 @@ workflows:
             - sonarcloud
       - errors-trello-card:
           requires:
-            - run-tests:
-              - failed
             - sonarcloud:
               - failed
       - check-deploy-status2:
