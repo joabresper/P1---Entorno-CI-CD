@@ -81,8 +81,11 @@ jobs:
             echo ${TEXT}
 
             curl --request POST \
-              --url 'https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}' \
-              --header 'Accept: application/json' 
+              --url 'https://api.trello.com/1/cards/${CARD_ID}/checklists?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}'
+
+      # curl --request POST \
+      #   --url 'https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}' \
+      #   --header 'Accept: application/json' 
 
   deploy:
     docker:
