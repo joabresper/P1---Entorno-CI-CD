@@ -60,6 +60,8 @@ jobs:
     docker:
       - image: cimg/base:stable
     parameters:
+      trello_list:
+        type: string
       message:
         type: string
         default: "el pipeline"
@@ -69,38 +71,18 @@ jobs:
           name: Move card to trello errors list 
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
-            AUTHOR=$(git log -1 --pretty='%an')
-
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards/all?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
-              | jq -r --arg msg "${COMMIT_MSG}" '.[] | select(.name | contains($msg)) | .id' \
-              | head -n 1)
-
-            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_ERRORS_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
-
-            TEXT="CircleCI detectó un error en << parameters.message >> | GitHubUser: ${AUTHOR}"
-            ENCODED_TEXT=$(printf "%s" "${TEXT}" | jq -sRr @uri)
-
-            curl --request POST \
-              --url "https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${ENCODED_TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
-              --header 'Accept: application/json'
-
-  trello-card-2da-opt:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: Prueba short id
-          command: |
-            echo "Obteniendo short id de la tarjeta de Trello..."
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-            echo "Commit message: $COMMIT_MSG"
             CARD_SHORT_ID=$(echo "$COMMIT_MSG" | sed -n 's/.*\[\([^]]*\)\].*/\1/p')
-            echo "Short ID de la tarjeta: $CARD_SHORT_ID" 
+            AUTHOR=$(git log -1 --pretty='%an')
+            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_SHORT_ID}?idList=${<< parameters.trello_list >>}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
+            
+            if [ parameters.trello_list == "TRELLO_ERRORS_LIST_ID" ]; then
+              TEXT="CircleCI detectó un error en << parameters.message >> | GitHubUser: ${AUTHOR}"
+              ENCODED_TEXT=$(printf "%s" "${TEXT}" | jq -sRr @uri)
 
-            curl --request GET \
-              --url "https://api.trello.com/1/cards/${CARD_SHORT_ID}?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
-              --header 'Accept: application/json'
+              curl --request POST \
+                --url "https://api.trello.com/1/cards/${CARD_SHORT_ID}/actions/comments?text=${ENCODED_TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
+                --header 'Accept: application/json'
+            fi
 
   deploy:
     docker:
@@ -270,4 +252,6 @@ workflows:
     #       - develop
   trello:
     jobs:
-      - trello-card-2da-opt
+      - move-trello-card-to-errors:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          message: "Pruebas unitarias"
