@@ -231,4 +231,5 @@ workflows:
   #     - sonarcloud
     filters:
       branches:
-        only: develop
+        only:
+          - develop
