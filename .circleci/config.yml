@@ -59,6 +59,10 @@ jobs:
   move-trello-card-to-errors:
     docker:
       - image: cimg/base:stable
+    parameters:
+      message:
+        type: string
+        default: "Error en el pipeline"
     steps:
       - checkout
       - run:
