@@ -253,5 +253,5 @@ workflows:
   trello:
     jobs:
       - move-trello-card-to-errors:
-          trello_list: environmentTRELLO_ERRORS_LIST_ID
-          message: << pipeline.env.TRELLO_ERRORS_LIST_ID >>
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          message: "error en no se q"
