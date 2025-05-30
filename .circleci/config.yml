@@ -78,11 +78,11 @@ jobs:
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_ERRORS_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
 
             TEXT="CircleCI detectó un error en << parameters.message >> |  GitUser: ${AUTHOR}"
-            echo ${TEXT}
+            ENCODED_TEXT=$(printf "%s" "${TEXT}" | jq -sRr @uri)
 
             curl --request POST \
-              --url "https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
-              --header "Accept: application/json"
+              --url "https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${ENCODED_TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
+              --header 'Accept: application/json'
 
   deploy:
     docker:
