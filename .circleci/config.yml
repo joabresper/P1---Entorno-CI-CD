@@ -69,17 +69,19 @@ jobs:
           name: Move card to trello errors list 
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
+            AUTHOR=$(git log -1 --pretty='%an')
 
             CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards/all?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
               | jq -r --arg msg "${COMMIT_MSG}" '.[] | select(.name | contains($msg)) | .id' \
               | head -n 1)
 
             curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_ERRORS_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
-            
-            curl -X POST "https://api.trello.com/1/cards/{CARD_ID}/actions/comments" \
-              -d "key={API_KEY}" \
-              -d "token={TOKEN}" \
-              -d "text=Ocurrio un error en la ejecucion de << parameters.message >>"
+
+            TEXT="CircleCI detectó un error en << parameters.message >> |  GitUser: ${AUTHOR}"
+
+            curl --request POST \
+              --url 'https://api.trello.com/1/cards/${CARD_ID}/actions/comments?text=${TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}' \
+              --header 'Accept: application/json'
 
   deploy:
     docker:
