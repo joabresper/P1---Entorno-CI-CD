@@ -126,9 +126,16 @@ jobs:
           command: |
               sleep 60
   
-  bombardier-test-pass:
+  bombardier-test:
     docker:
       - image: cimg/base:stable
+    parameters:
+      connections:
+        type: integer
+        default: 100
+      requests:
+        type: integer
+        default: 10
     steps:
       - run:
           name: Install Bombardier
@@ -140,39 +147,15 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 100 -n 10 ${RENDER_APP_URL} > output.txt
+            bombardier -c << parameters.connections >> -n << parameters.requests >> ${RENDER_APP_URL} > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
             fi
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
-          failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
-  
-  bombardier-test-fail:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: Install Bombardier
-          command: |
-            curl -L https://github.com/codesenberg/bombardier/releases/download/v1.2.5/bombardier-linux-amd64 -o bombardier
-            chmod +x bombardier
-            sudo mv bombardier /usr/local/bin/
-            echo "Bombardier installed successfully"
-      - run:
-          name: Run concurrency test with Bombardier
-          command: |
-            bombardier -c 1000000 -n 10000000 ${RENDER_APP_URL} > output.txt
-            cat output.txt
-            if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
-              exit 1
-            fi
-      - discord/status:
-          webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
-          failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
+          success_message: "**✅ Prueba de concurrencia completada con éxito!**\\nNo hubo errores HTTP!"
+          failure_message: "**❌ La prueba de concurrencia falló.**\\nHubo errores HTTP. Revisá los resultados."
   
   sonarcloud:
     docker:
@@ -236,9 +219,12 @@ workflows:
       - check-deploy-status2:
           requires:
             - deploy
-      - bombardier-test-fail:
+      - bombardier-test:
           requires:
-            - check-deploy-status2 
+            - check-deploy-status2
+          parameters:
+            connections: 1000000
+            requests: 10000000
   # bombardier-pass:
   #   jobs:
   #     - bombardier-test-pass
