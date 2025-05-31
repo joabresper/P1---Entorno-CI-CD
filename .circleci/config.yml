@@ -101,7 +101,7 @@ jobs:
           command: |
             sleep 60
 
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tu-app.onrender.com)
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${RENDER_APP_URL})
             if [ "$STATUS" -ne 200 ]; then
               exit 1
             fi
