@@ -96,11 +96,20 @@ jobs:
           name: Deploy in Render
           command: |
             curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+      - run:
+          name: Check deploy
+          command: |
+            sleep 60
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tu-app.onrender.com)
+            if [ "$STATUS" -ne 200 ]; then
+              exit 1
+            fi
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Se inicio correctamente el deploy!**"
-          failure_message: "**❌ Fallo en la inicializacion del deploy.**"
-  
+          success_message: "**✅ Se realizó correctamente el deploy!**"
+          failure_message: "**❌ Falló el deploy.**"
+
   check-deploy-status:
     docker:
       - image: cimg/base:stable
@@ -227,9 +236,12 @@ workflows:
 
   bombardier-test-fail:
     jobs:
+      - deploy:
       - bombardier-test:
-          connections: 10000
-          requests: 100000
+          connections: 1000000
+          requests: 1000000
+          requires:
+            - deploy
   # sonarcloud:
   #   jobs:
   #     - sonarcloud
