@@ -36,25 +36,6 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
-  
-  move-trello-card-to-done:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: Move card to trello done list
-          command: |
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards/all?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
-              | jq -r --arg msg "${COMMIT_MSG}" '.[] | select(.name | contains($msg)) | .id' \
-              | head -n 1)
-
-            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
-      # - discord/status:
-      #     webhook: "${DISCORD_TRELLO_WEBHOOK}"
-      #     failure_message: "Targeta \"**$(COMMIT_MSG)**\" no entontrada. No se pudo mover a Hecho en el tablero."
 
   move-trello-card:
     docker:
@@ -243,10 +224,3 @@ workflows:
           # requests: 1000000
           requires:
             - deploy
-  # sonarcloud:
-  #   jobs:
-  #     - sonarcloud
-    # filters:
-    #   branches:
-    #     only:
-    #       - develop
