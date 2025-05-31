@@ -209,7 +209,7 @@ workflows:
           trello_list: "TRELLO_DONE_LIST_ID"
           requires:
             - sonarcloud
-      - check-deploy-status2:
+      - check-deploy-status:
           requires:
             - deploy
       - bombardier-test:
