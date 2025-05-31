@@ -214,7 +214,7 @@ workflows:
             - deploy
       - bombardier-test:
           requires:
-            - check-deploy-status2
+            - check-deploy-status
           # connections: 10000
           # requests: 100000
 
