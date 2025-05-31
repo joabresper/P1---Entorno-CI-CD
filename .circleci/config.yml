@@ -103,8 +103,10 @@ jobs:
 
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${RENDER_APP_URL})
             if [ "$STATUS" -ne 200 ]; then
+              echo "El sitio no está activo. Código de estado: $STATUS"
               exit 1
             fi
+            echo "El sitio está activo. Código de estado: $STATUS"
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ Se realizó correctamente el deploy!**"
