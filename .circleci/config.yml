@@ -180,43 +180,47 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
 
 workflows:
-  # full:
-  #   jobs:
-  #     - create-environment
-  #     - run-tests:
-  #         requires:
-  #           - create-environment
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_ERRORS_LIST_ID"
-  #         message: "Pruebas"
-  #         requires:
-  #           - run-tests:
-  #             - failed
-  #     - sonarcloud:
-  #         requires:
-  #           - run-tests
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_ERRORS_LIST_ID"
-  #         requires:
-  #           - sonarcloud:
-      #         - failed
-      # - deploy:
-      #     requires:
-      #       - sonarcloud
-      # - move-trello-card:
-      #     trello_list: "TRELLO_DONE_LIST_ID"
-      #     requires:
-      #       - sonarcloud
-      # - check-deploy-status2:
-      #     requires:
-      #       - deploy
-      # - bombardier-test:
-      #     requires:
-      #       - check-deploy-status2
-      #     connections: 10000
-      #     requests: 100000
+  full:
+      when:
+        equal: [develop, << pipeline.git.branch >>]
+    jobs:
+      - create-environment
+      - run-tests:
+          requires:
+            - create-environment
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          message: "Pruebas"
+          requires:
+            - run-tests:
+              - failed
+      - sonarcloud:
+          requires:
+            - run-tests
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          requires:
+            - sonarcloud:
+              - failed
+      - deploy:
+          requires:
+            - sonarcloud
+      - move-trello-card:
+          trello_list: "TRELLO_DONE_LIST_ID"
+          requires:
+            - sonarcloud
+      - check-deploy-status2:
+          requires:
+            - deploy
+      - bombardier-test:
+          requires:
+            - check-deploy-status2
+          # connections: 10000
+          # requests: 100000
 
   bombardier-test-fail:
+    when:
+      equal: [main, << pipeline.git.branch >>]
     jobs:
       - deploy
       - bombardier-test:
