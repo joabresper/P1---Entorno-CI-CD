@@ -181,30 +181,30 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
 
 workflows:
-  full:
-    jobs:
-      - create-environment
-      - run-tests:
-          requires:
-            - create-environment
-      - sonarcloud:
-          requires:
-            - run-tests
-      - deploy:
-          requires:
-            - sonarcloud
-      - done-trello-card:
-          requires:
-            - sonarcloud
-      - check-deploy-status2:
-          requires:
-            - deploy
-      - bombardier-test-pass:
-          requires:
-            - check-deploy-status2
-  # bombardier-pass:
+  # full:
   #   jobs:
-  #     - bombardier-test-pass
+  #     - create-environment
+  #     - run-tests:
+  #         requires:
+  #           - create-environment
+  #     - sonarcloud:
+  #         requires:
+  #           - run-tests
+  #     - deploy:
+  #         requires:
+  #           - sonarcloud
+  #     - done-trello-card:
+  #         requires:
+  #           - sonarcloud
+  #     - check-deploy-status2:
+  #         requires:
+  #           - deploy
+  #     - bombardier-test-pass:
+  #         requires:
+  #           - check-deploy-status2
+  bombardier-pass:
+    jobs:
+      - bombardier-test-pass
 
   # bombardier-fail:
   #   jobs:
