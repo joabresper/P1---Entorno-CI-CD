@@ -181,8 +181,8 @@ jobs:
 
 workflows:
   full:
-      when:
-        equal: [develop, << pipeline.git.branch >>]
+    when:
+      equal: [develop, << pipeline.git.branch >>]
     jobs:
       - create-environment
       - run-tests:
