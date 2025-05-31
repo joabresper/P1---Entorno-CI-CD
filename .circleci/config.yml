@@ -222,9 +222,8 @@ workflows:
       - bombardier-test:
           requires:
             - check-deploy-status2
-          parameters:
-            connections: 1000000
-            requests: 10000000
+          connections: 1000000
+          requests: 10000000
   # bombardier-pass:
   #   jobs:
   #     - bombardier-test-pass
