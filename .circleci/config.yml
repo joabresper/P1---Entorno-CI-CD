@@ -186,15 +186,10 @@ jobs:
       - run:
           name: Create Pull Request from develop to main
           command: |
-            curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+            curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
-              -d '{
-                "title": "Auto PR: develop → main",
-                "head": "develop",
-                "base": "main",
-                "body": "Auto PR - Develop pipeline completed successfully. Merging changes from develop to main.",
-              }'
+              -d "{\"title\": \"Auto PR: develop → main\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
 
 workflows:
   dev-full-pipeline:
