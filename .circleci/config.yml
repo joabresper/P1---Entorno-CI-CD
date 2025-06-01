@@ -218,6 +218,10 @@ workflows:
           # connections: 10000
           # requests: 100000
 
+  bombardier-pass:
+    jobs:
+      - bombardier-test-pass
+
   # bombardier-test-fail:
   #   when:
   #     equal: [develop, << pipeline.git.branch >>]
@@ -226,8 +230,8 @@ workflows:
   #         connections: 1000000
   #         requests: 1000000
   
-  main-full-pipeline:
-    when:
-      equal: [main, << pipeline.git.branch >>]
-    jobs:
+#   main-full-pipeline:
+#     when:
+#       equal: [main, << pipeline.git.branch >>]
+#     jobs:
       
