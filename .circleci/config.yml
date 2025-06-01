@@ -192,7 +192,7 @@ jobs:
               -d "{\"title\": \"Auto PR: develop → main\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
 
 workflows:
-  dev-full-pipeline:
+  dev-full-pipeline: 
     when:
       equal: [develop, << pipeline.git.branch >>]
     jobs:
@@ -233,9 +233,9 @@ workflows:
           requires:
             - bombardier-test
 
-  bombardier-pass:
-    jobs:
-      - bombardier-test
+  # bombardier-pass:
+  #   jobs:
+  #     - bombardier-test
 
   # bombardier-test-fail:
   #   when:
