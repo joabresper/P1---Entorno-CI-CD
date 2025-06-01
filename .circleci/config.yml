@@ -220,7 +220,7 @@ workflows:
 
   bombardier-pass:
     jobs:
-      - bombardier-test-pass
+      - bombardier-test
 
   # bombardier-test-fail:
   #   when:
