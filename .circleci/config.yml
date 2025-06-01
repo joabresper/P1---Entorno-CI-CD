@@ -180,7 +180,7 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
 
 workflows:
-  full:
+  dev-full-pipeline:
     when:
       equal: [develop, << pipeline.git.branch >>]
     jobs:
@@ -218,13 +218,16 @@ workflows:
           # connections: 10000
           # requests: 100000
 
-  bombardier-test-fail:
+  # bombardier-test-fail:
+  #   when:
+  #     equal: [develop, << pipeline.git.branch >>]
+  #   jobs:
+  #     - bombardier-test:
+  #         connections: 1000000
+  #         requests: 1000000
+  
+  main-full-pipeline:
     when:
-      equal: [develop, << pipeline.git.branch >>]
+      equal: [main, << pipeline.git.branch >>]
     jobs:
-      - deploy
-      - bombardier-test:
-          # connections: 1000000
-          # requests: 1000000
-          requires:
-            - deploy
+      
