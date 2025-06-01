@@ -36,28 +36,34 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
-  
-  done-trello-card:
+
+  move-trello-card:
     docker:
-      - image: cimg/node:22.12.0
+      - image: cimg/base:stable
+    parameters:
+      trello_list:
+        type: string
+      message:
+        type: string
+        default: "el pipeline"
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: npm install
-      - run:
-          name: Move to done trello card
+          name: Move card to trello errors list 
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
+            CARD_SHORT_ID=$(echo "$COMMIT_MSG" | sed -n 's/.*\[\([^]]*\)\].*/\1/p')
+            AUTHOR=$(git log -1 --pretty='%an')
+            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_SHORT_ID}?idList=${<< parameters.trello_list >>}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
+            
+            if [ << parameters.trello_list >> == "TRELLO_ERRORS_LIST_ID" ]; then
+              TEXT="CircleCI detectó un error en << parameters.message >> | GitHubUser: ${AUTHOR}"
+              ENCODED_TEXT=$(printf "%s" "${TEXT}" | jq -sRr @uri)
 
-            CARD_ID=$(curl -s "https://api.trello.com/1/boards/${TRELLO_BOARD_ID}/cards/all?key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
-              | jq -r --arg msg "${COMMIT_MSG}" '.[] | select(.name | contains($msg)) | .id' \
-              | head -n 1)
-
-            curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}?idList=${TRELLO_DONE_LIST_ID}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}"
-      # - discord/status:
-      #     webhook: "${DISCORD_TRELLO_WEBHOOK}"
-      #     failure_message: "Targeta \"**$(COMMIT_MSG)**\" no entontrada. No se pudo mover a Hecho en el tablero."
+              curl --request POST \
+                --url "https://api.trello.com/1/cards/${CARD_SHORT_ID}/actions/comments?text=${ENCODED_TEXT}&key=${TRELLO_API_KEY}&token=${TRELLO_SECRET_TOKEN}" \
+                --header 'Accept: application/json'
+            fi
 
   deploy:
     docker:
@@ -71,11 +77,30 @@ jobs:
           name: Deploy in Render
           command: |
             curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+      - run:
+          name: Check deploy
+          command: |
+            sleep 60
+
+            for i in {1..10}; do
+              if curl -sSf ${RENDER_APP_URL} > /dev/null; then
+                echo "Sitio activo"
+                break
+              fi
+              echo "Esperando que el sitio esté disponible..."
+              sleep 5
+            done
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${RENDER_APP_URL})
+            if [ "$STATUS" -ne 200 ]; then
+              echo "El sitio no está activo. Código de estado: $STATUS"
+              exit 1
+            fi
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Se inicio correctamente el deploy!**"
-          failure_message: "**❌ Fallo en la inicializacion del deploy.**"
-  
+          success_message: "**✅ Se realizó correctamente el deploy!**"
+          failure_message: "**❌ Falló el deploy.**"
+
   check-deploy-status:
     docker:
       - image: cimg/base:stable
@@ -91,19 +116,17 @@ jobs:
               echo "Esperando que el sitio esté disponible..."
               sleep 5
             done
-
-  check-deploy-status2:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: Check deploy status
-          command: |
-              sleep 60
   
-  bombardier-test-pass:
+  bombardier-test:
     docker:
       - image: cimg/base:stable
+    parameters:
+      connections:
+        type: integer
+        default: 100
+      requests:
+        type: integer
+        default: 10
     steps:
       - run:
           name: Install Bombardier
@@ -115,39 +138,15 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c 100 -n 10 ${RENDER_APP_URL} > output.txt
+            bombardier -c << parameters.connections >> -n << parameters.requests >> ${RENDER_APP_URL} > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
             fi
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
-          failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
-  
-  bombardier-test-fail:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: Install Bombardier
-          command: |
-            curl -L https://github.com/codesenberg/bombardier/releases/download/v1.2.5/bombardier-linux-amd64 -o bombardier
-            chmod +x bombardier
-            sudo mv bombardier /usr/local/bin/
-            echo "Bombardier installed successfully"
-      - run:
-          name: Run concurrency test with Bombardier
-          command: |
-            bombardier -c 500 -n 10000 ${RENDER_APP_URL} > output.txt
-            cat output.txt
-            if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
-              exit 1
-            fi
-      - discord/status:
-          webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Prueba de carga pesada completada con éxito!**\\nNo hubo errores HTTP!"
-          failure_message: "**❌ La prueba de carga pesada falló.**\\nHubo errores HTTP. Revisá los resultados."
+          success_message: "**✅ Prueba de concurrencia completada con éxito!**\\nNo hubo errores HTTP!"
+          failure_message: "**❌ La prueba de concurrencia falló.**\\nHubo errores HTTP. Revisá los resultados."
   
   sonarcloud:
     docker:
@@ -181,34 +180,58 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
 
 workflows:
-  # full:
-  #   jobs:
-  #     - create-environment
-  #     - run-tests:
-  #         requires:
-  #           - create-environment
-  #     - sonarcloud:
-  #         requires:
-  #           - run-tests
-  #     - deploy:
-  #         requires:
-  #           - sonarcloud
-  #     - done-trello-card:
-  #         requires:
-  #           - sonarcloud
-  #     - check-deploy-status2:
-  #         requires:
-  #           - deploy
-  #     - bombardier-test-pass:
-  #         requires:
-  #           - check-deploy-status2
+  dev-full-pipeline:
+    when:
+      equal: [develop, << pipeline.git.branch >>]
+    jobs:
+      - create-environment
+      - run-tests:
+          requires:
+            - create-environment
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          message: "Pruebas"
+          requires:
+            - run-tests:
+              - failed
+      - sonarcloud:
+          requires:
+            - run-tests
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          requires:
+            - sonarcloud:
+              - failed
+      - deploy:
+          requires:
+            - sonarcloud
+      - move-trello-card:
+          trello_list: "TRELLO_DONE_LIST_ID"
+          requires:
+            - sonarcloud
+      - check-deploy-status:
+          requires:
+            - deploy
+      - bombardier-test:
+          requires:
+            - check-deploy-status
+          # connections: 10000
+          # requests: 100000
+
   bombardier-pass:
     jobs:
-      - bombardier-test-pass
+      - bombardier-test
 
-  # bombardier-fail:
+  # bombardier-test-fail:
+  #   when:
+  #     equal: [develop, << pipeline.git.branch >>]
   #   jobs:
-  #     - bombardier-test-fail
-  # sonarcloud:
-  #   jobs:
-  #     - sonarcloud
+  #     - bombardier-test:
+  #         connections: 1000000
+  #         requests: 1000000
+  
+#   main-full-pipeline:
+#     when:
+#       equal: [main, << pipeline.git.branch >>]
+#     jobs:
+      
