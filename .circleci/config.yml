@@ -178,6 +178,23 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           success_message: "**✅ SonarCloud análisis completado con éxito!**\\nLa calidad del código es buena!"
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
+  
+  pull-request:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Create Pull Request from develop to main
+          command: |
+            curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
+              -d '{
+                "title": "Auto PR: develop → main",
+                "head": "develop",
+                "base": "main",
+                "body": "Auto PR - Develop pipeline completed successfully. Merging changes from develop to main.",
+              }'
 
 workflows:
   dev-full-pipeline:
@@ -217,6 +234,9 @@ workflows:
             - check-deploy-status
           # connections: 10000
           # requests: 100000
+      - pull-request:
+          requires:
+            - bombardier-test
 
   bombardier-pass:
     jobs:
