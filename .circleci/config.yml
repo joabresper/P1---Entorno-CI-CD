@@ -237,7 +237,7 @@ workflows:
       - pull-request:
           filters:
             tags:
-              only: /^v.*/
+              only: /^v.*/ 
 
 
   # bombardier-pass:
