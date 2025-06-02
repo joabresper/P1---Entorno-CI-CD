@@ -230,7 +230,7 @@ workflows:
           # connections: 10000
           # requests: 100000
       - pull-request:
-          requires:
+          requires: 
             - bombardier-test 
 
   # bombardier-pass:
