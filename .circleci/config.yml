@@ -231,7 +231,7 @@ workflows:
           # requests: 100000
       - pull-request:
           requires:
-            - bombardier-test
+            - bombardier-test 
 
   # bombardier-pass:
   #   jobs:
