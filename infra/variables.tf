@@ -3,7 +3,7 @@ variable "region" {
   default     = "us-east-2"
 }
 
-variable "ami_id" { 
+variable "ami_id" {  
 	description = "ID de la AMI"
 	default = "ami-06c8f2ec674c67112"
 }
