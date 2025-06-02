@@ -6,6 +6,11 @@ orbs:
   discord: antonioned/discord@0.1.0
   sonarcloud: sonarsource/sonarcloud@3.0
 
+parameters:
+  tag:
+    type: string
+    default: ""
+
 jobs:
   create-environment:
     docker:
@@ -230,8 +235,10 @@ workflows:
           # connections: 10000
           # requests: 100000
       - pull-request:
-          requires: 
-            - bombardier-test 
+          filters:
+            tags:
+              only: /^v.*/ 
+
 
   # bombardier-pass:
   #   jobs:
