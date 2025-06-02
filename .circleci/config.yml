@@ -236,13 +236,13 @@ workflows:
           # requests: 100000
 
   release:
+    when:
+      condition:
+        matches:
+          pattern: "/^v.*/"
+          value: << pipeline.git.tag >>
     jobs:
-      - pull-request:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
+      - pull-request
 
 
   # bombardier-pass:
