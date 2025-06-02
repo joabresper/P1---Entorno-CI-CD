@@ -237,9 +237,11 @@ workflows:
 
   release:
     when:
-      matches: 
-        pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
-        value: << pipeline.git.tag >>
+      filters:
+        branches:
+          ignore: /.*/
+        tags:
+          only: /^v[0-9]+\\.[0-9]+\\.[0-9]+$/
     jobs:
       - pull-request
 
