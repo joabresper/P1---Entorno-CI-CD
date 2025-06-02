@@ -236,14 +236,14 @@ workflows:
           # requests: 100000
 
   release:
-    when:
-      filters:
-        branches:
-          ignore: /.*/
-        tags:
-          only: /^v.*/
     jobs:
-      - pull-request
+      - pull-request:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
 
   # bombardier-pass:
   #   jobs:
