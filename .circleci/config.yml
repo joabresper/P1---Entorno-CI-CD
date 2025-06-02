@@ -234,15 +234,10 @@ workflows:
             - check-deploy-status
           # connections: 10000
           # requests: 100000
-
-  release:
-    when:
-      condition:
-        matches:
-          pattern: "/^v.*/"
-          value: << pipeline.git.tag >>
-    jobs:
-      - pull-request
+      - pull-request:
+          filters:
+            tags:
+              only: /^v.*/
 
 
   # bombardier-pass:
