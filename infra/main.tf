@@ -24,6 +24,8 @@ resource "aws_instance" "app_server" {
               chown -R ubuntu:ubuntu /home/ubuntu/.ssh
               chmod 600 /home/ubuntu/.ssh/authorized_keys
               EOF
+  
+  vpc_security_group_ids = ["sg-0664764c4b4d81bac"]
 
   tags = {
     Name = "EC2-instance-for-tests"
