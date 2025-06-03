@@ -2,6 +2,9 @@ version: 2.1
 
 node_image: &node_image cimg/node:22.12.0
 
+imports:
+  - .circleci/terraform.yml
+
 orbs:
   discord: antonioned/discord@0.1.0
   sonarcloud: sonarsource/sonarcloud@3.0
@@ -197,48 +200,59 @@ jobs:
               -d "{\"title\": \"Auto PR: develop → main\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
 
 workflows:
-  dev-full-pipeline: 
-    when:
-      equal: [develop, << pipeline.git.branch >>]
-    jobs:
-      - create-environment
-      - run-tests:
-          requires:
-            - create-environment
-      - move-trello-card:
-          trello_list: "TRELLO_ERRORS_LIST_ID"
-          message: "Pruebas"
-          requires:
-            - run-tests:
-              - failed
-      - sonarcloud:
-          requires:
-            - run-tests
-      - move-trello-card:
-          trello_list: "TRELLO_ERRORS_LIST_ID"
-          requires:
-            - sonarcloud:
-              - failed
-      - deploy:
-          requires:
-            - sonarcloud
-      - move-trello-card:
-          trello_list: "TRELLO_DONE_LIST_ID"
-          requires:
-            - sonarcloud
-      - check-deploy-status:
-          requires:
-            - deploy
-      - bombardier-test:
-          requires:
-            - check-deploy-status
+  # dev-full-pipeline: 
+  #   when:
+  #     equal: [develop, << pipeline.git.branch >>]
+  #   jobs:
+  #     - create-environment
+  #     - run-tests:
+  #         requires:
+  #           - create-environment
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_ERRORS_LIST_ID"
+  #         message: "Pruebas"
+  #         requires:
+  #           - run-tests:
+  #             - failed
+  #     - sonarcloud:
+  #         requires:
+  #           - run-tests
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_ERRORS_LIST_ID"
+  #         requires:
+  #           - sonarcloud:
+  #             - failed
+  #     - deploy:
+  #         requires:
+  #           - sonarcloud
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_DONE_LIST_ID"
+  #         requires:
+  #           - sonarcloud
+  #     - check-deploy-status:
+  #         requires:
+  #           - deploy
+  #     - bombardier-test:
+  #         requires:
+  #           - check-deploy-status
           # connections: 10000
           # requests: 100000
-      - pull-request:
-          filters:
-            tags:
-              only: /^v.*/ 
-
+      # - pull-request:
+      #     filters:
+      #       tags:
+      #         only: /^v.*/ 
+  tf-test:
+    jobs:
+      - plan-apply
+      - apply:
+          requires:
+            - plan-apply
+      - plan-destroy:
+          requires:
+            - apply
+      - destroy:
+          requires:
+            - plan-destroy
 
   # bombardier-pass:
   #   jobs:
