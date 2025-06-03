@@ -225,6 +225,7 @@ jobs:
       - run:
           name: terraform
           command: |
+            cd infra
             terraform apply -auto-approve tfapply
       - persist_to_workspace:
           root: infra
@@ -240,6 +241,7 @@ jobs:
       - run:
           name: terraform create destroy plan
           command: |
+            cd infra
             terraform plan -destroy -out tfdestroy -var-file terraform.tfvars
       - persist_to_workspace:
           root: infra
@@ -255,6 +257,7 @@ jobs:
       - run:
           name: terraform destroy
           command: |
+            cd infra
             terraform apply -auto-approve tfdestroy
 
 
