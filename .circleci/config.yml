@@ -293,8 +293,7 @@ jobs:
               git clone https://github.com/joabresper/P1---Entorno-CI-CD.git
               cd P1---Entorno-CI-CD
               npm install
-              npm run build
-              npm start &
+              nohup npm start > output.log 2>&1 &
             EOF
       - run:
           name: Mostrar URL de la app desplegada
@@ -302,7 +301,7 @@ jobs:
             IP=$(cat infra/ec2_ip.txt)
             echo "======================================="
             echo "✅ Tu app ya está desplegada 🚀"
-            echo "🌐 URL: http://$IP:3000"
+            echo "🌐 URL: http://${EC2_IP}:3000"
             echo "======================================="
 
 
