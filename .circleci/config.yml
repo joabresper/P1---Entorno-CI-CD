@@ -298,7 +298,7 @@ jobs:
       - run:
           name: Mostrar URL de la app desplegada
           command: |
-            IP=$(cat infra/ec2_ip.txt)
+            EC2_IP=$(cat infra/ec2_ip.txt)
             echo "======================================="
             echo "✅ Tu app ya está desplegada 🚀"
             echo "🌐 URL: http://${EC2_IP}:3000"
