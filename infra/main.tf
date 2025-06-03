@@ -17,7 +17,15 @@ resource "aws_instance" "app_server" {
   ami           = var.ami_id
   instance_type = var.instance_type
 
+  user_data = <<-EOF
+              #!/bin/bash
+              mkdir -p /home/ubuntu/.ssh
+              echo "${var.ssh-public-key}" >> /home/ubuntu/.ssh/authorized_keys
+              chown -R ubuntu:ubuntu /home/ubuntu/.ssh
+              chmod 600 /home/ubuntu/.ssh/authorized_keys
+              EO
+
   tags = {
-    Name = "ExampleAppServerInstance"
+    Name = "EC2-instance-for-tests"
   }
 }

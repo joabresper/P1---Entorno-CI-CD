@@ -8,6 +8,7 @@ imports:
 orbs:
   discord: antonioned/discord@0.1.0
   sonarcloud: sonarsource/sonarcloud@3.0
+  terraform: circleci/terraform@3.6.0
 
 parameters:
   tag:
@@ -259,9 +260,19 @@ jobs:
           command: |
             cd infra
             terraform apply -auto-approve tfdestroy
+  
+  deploy
 
 
 workflows:
+  test-orb-terraform:
+    jobs:
+      - terraform/apply:
+          checkout: true
+          attach-workspace: true
+          workspace-root: infra
+          workspace-path: infra
+          var-file: terraform.tfvars
   # dev-full-pipeline: 
   #   when:
   #     equal: [develop, << pipeline.git.branch >>]
@@ -303,18 +314,70 @@ workflows:
       #     filters:
       #       tags:
       #         only: /^v.*/ 
-  tf-test:
-    jobs:
-      - plan-apply
-      - apply:
-          requires:
-            - plan-apply
-      - plan-destroy:
-          requires:
-            - apply
-      - destroy:
-          requires:
-            - plan-destroy
+
+  # tf-test:
+  #   jobs:
+  #     - plan-apply
+  #     - apply:
+  #         requires:
+  #           - plan-apply
+  #     - plan-destroy:
+  #         requires:
+  #           - apply
+  #     - destroy:
+  #         requires:
+  #           - plan-destroy
+
+  # dev-full-pipeline:
+  #   when:
+  #     equal: [develop, << pipeline.git.branch >>]
+  #   jobs:
+  #     - create-environment
+  #     - run-tests:
+  #         requires:
+  #           - create-environment
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_ERRORS_LIST_ID"
+  #         message: "Pruebas"
+  #         requires:
+  #           - run-tests:
+  #               - failed
+  #     - sonarcloud:
+  #         requires:
+  #           - run-tests
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_ERRORS_LIST_ID"
+  #         requires:
+  #           - sonarcloud:
+  #               - failed
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_DONE_LIST_ID"
+  #         requires:
+  #           - sonarcloud
+  #     - plan-apply:
+  #         requires:
+  #           - sonarcloud
+  #     - approve-plan:
+  #         type: approval
+  #         requires:
+  #           - plan-apply
+  #     - apply:
+  #         requires:
+  #           - approve-plan
+  #     - bombardier-test:
+  #         requires:
+  #           - apply
+  #         connections: 10000
+  #         requests: 10000
+  #     - plan-destroy:
+  #         requires:
+  #           - bombardier-test
+  #     - destroy:
+  #         requires:
+  #           - plan-destroy
+
+
+      
 
   # bombardier-pass:
   #   jobs:
