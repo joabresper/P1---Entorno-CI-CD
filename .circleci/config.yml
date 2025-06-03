@@ -202,7 +202,7 @@ jobs:
   plan-apply:
     working_directory: ~/project
     docker:
-      - image: hashicorp/terraform:1.7.5
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - run:
