@@ -1,9 +1,8 @@
 terraform {
-  backend "remote" {
+  cloud {
     organization = "Entorno-CI-CD"
-
     workspaces {
-      name = "P1---Entorno-CI-CD"
+      name = "infra-develop"
     }
   }
 
