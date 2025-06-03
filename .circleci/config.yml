@@ -8,7 +8,6 @@ imports:
 orbs:
   discord: antonioned/discord@0.1.0
   sonarcloud: sonarsource/sonarcloud@3.0
-  terraform: circleci/terraform@3.6.0
 
 parameters:
   tag:
@@ -261,17 +260,10 @@ jobs:
             cd infra
             terraform apply -auto-approve tfdestroy
   
+  deploy
+
 
 workflows:
-  test-orb-terraform:
-    jobs:
-      - terraform/apply:
-          checkout: true
-          attach-workspace: true
-          path: infra
-          workspace-root: infra
-          workspace-path: infra
-          var_file: terraform.tfvars
   # dev-full-pipeline: 
   #   when:
   #     equal: [develop, << pipeline.git.branch >>]
@@ -314,18 +306,18 @@ workflows:
       #       tags:
       #         only: /^v.*/ 
 
-  # tf-test:
-  #   jobs:
-  #     - plan-apply
-  #     - apply:
-  #         requires:
-  #           - plan-apply
-  #     - plan-destroy:
-  #         requires:
-  #           - apply
-  #     - destroy:
-  #         requires:
-  #           - plan-destroy
+  tf-test:
+    jobs:
+      - plan-apply
+      - apply:
+          requires:
+            - plan-apply
+      - plan-destroy:
+          requires:
+            - apply
+      - destroy:
+          requires:
+            - plan-destroy
 
   # dev-full-pipeline:
   #   when:
@@ -374,8 +366,6 @@ workflows:
   #     - destroy:
   #         requires:
   #           - plan-destroy
-
-
       
 
   # bombardier-pass:
