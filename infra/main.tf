@@ -19,10 +19,10 @@ resource "aws_instance" "app_server" {
 
   user_data = <<-EOF
               #!/bin/bash
-              mkdir -p /home/ec2-user/.ssh
-              echo "${var.ssh-public-key}" >> /home/ec2-user/.ssh/authorized_keys
-              chown -R ec2-user:ec2-user /home/ec2-user/.ssh
-              chmod 600 /home/ec2-user/.ssh/authorized_keys
+              mkdir -p /home/ubuntu/.ssh
+              echo "${var.ssh-public-key}" >> /home/ubuntu/.ssh/authorized_keys
+              chown -R ubuntu:ubuntu /home/ubuntu/.ssh
+              chmod 600 /home/ubuntu/.ssh/authorized_keys
               EOF
   
   vpc_security_group_ids = ["sg-0664764c4b4d81bac"]

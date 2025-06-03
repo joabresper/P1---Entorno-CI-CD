@@ -284,11 +284,11 @@ jobs:
               echo "Reintentando conexión SSH..."
             done
 
-            ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${EC2_IP} \<< EOF
+            ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${EC2_IP} \<< EOF
               sudo apt update
               sudo apt install -y git nodejs npm
               git clone ${CIRCLE_REPOSITORY_URL}
-              cd tu-repo
+              cd P1---Entorno-CI-CD
               npm install
               npm run build
               npm start &
