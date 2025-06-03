@@ -279,7 +279,7 @@ jobs:
 
             export EC2_IP=$(cat infra/ec2_ip.txt)
 
-            ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${EC2_IP} \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${EC2_IP} \<< EOF
               sudo apt update
               sudo apt install -y git nodejs npm
               git clone ${CIRCLE_REPOSITORY_URL}
