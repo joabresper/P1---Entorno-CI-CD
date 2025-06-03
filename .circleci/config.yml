@@ -290,7 +290,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${EC2_IP} \<< EOF
               sudo apt update
               sudo apt install -y git nodejs npm
-              git clone ${CIRCLE_REPOSITORY_URL}
+              git clone https://github.com/joabresper/P1---Entorno-CI-CD.git
               cd P1---Entorno-CI-CD
               npm install
               npm run build
