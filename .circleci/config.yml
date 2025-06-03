@@ -274,7 +274,7 @@ jobs:
       - run:
           name: Deploy en EC2
           command: |
-            echo "${EC2_SSH_PRIVATE_KEY}" > key.pem
+            echo "${EC2_SSH_PRIVATE_KEY}" | sed 's/\\n/\n/g' > key.pem
             chmod 600 key.pem
 
             export EC2_IP=$(cat infra/ec2_ip.txt)
