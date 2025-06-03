@@ -288,6 +288,14 @@ jobs:
               npm run build
               npm start &
             EOF
+      - run:
+          name: Mostrar URL de la app desplegada
+          command: |
+            IP=$(cat infra/ec2_ip.txt)
+            echo "======================================="
+            echo "✅ Tu app ya está desplegada 🚀"
+            echo "🌐 URL: http://$IP:3000"
+            echo "======================================="
 
 
 workflows:
