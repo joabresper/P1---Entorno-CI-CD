@@ -261,8 +261,6 @@ jobs:
             cd infra
             terraform apply -auto-approve tfdestroy
   
-  deploy
-
 
 workflows:
   test-orb-terraform:
@@ -272,7 +270,7 @@ workflows:
           attach-workspace: true
           workspace-root: infra
           workspace-path: infra
-          var-file: terraform.tfvars
+          var_file: terraform.tfvars
   # dev-full-pipeline: 
   #   when:
   #     equal: [develop, << pipeline.git.branch >>]
