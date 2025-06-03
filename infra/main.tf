@@ -23,7 +23,7 @@ resource "aws_instance" "app_server" {
               echo "${var.ssh-public-key}" >> /home/ubuntu/.ssh/authorized_keys
               chown -R ubuntu:ubuntu /home/ubuntu/.ssh
               chmod 600 /home/ubuntu/.ssh/authorized_keys
-              EO
+              EOF
 
   tags = {
     Name = "EC2-instance-for-tests"
