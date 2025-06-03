@@ -13,7 +13,7 @@ variable "instance_type" {
   type        = string
 }
 
-variable "ssh-puclib-key" {
+variable "ssh-public-key" {
 	description = "Clave pública SSH para acceso a EC2"
 	type		= string
 }
