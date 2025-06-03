@@ -202,18 +202,9 @@ jobs:
   plan-apply:
     working_directory: /tmp/project
     docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+      - image: hashicorp/terraform:1.7.5
     steps:
       - checkout
-      - run:
-          name: DEBUG - Mostrar si llega TF_API_TOKEN
-          command: |
-            if [ -z "$TF_API_TOKEN" ]; then
-              echo "TF_API_TOKEN no está definido en este entorno"
-              exit 1
-            else
-              echo "TF_API_TOKEN está presente"
-            fi
       - run:
           name: terraform init & plan
           command: |
