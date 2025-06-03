@@ -259,8 +259,6 @@ jobs:
           command: |
             cd infra
             terraform apply -auto-approve tfdestroy
-  
-  deploy
 
 
 workflows:
