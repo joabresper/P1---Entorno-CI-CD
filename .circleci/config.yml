@@ -200,7 +200,7 @@ jobs:
               -d "{\"title\": \"Auto PR: develop → main\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
 
   plan-apply:
-    working_directory: /tmp/project
+    working_directory: ~/project
     docker:
       - image: hashicorp/terraform:1.7.5
     steps:
@@ -212,7 +212,7 @@ jobs:
             terraform init -input=false
             terraform plan -out tfapply -var-file terraform.tfvars
       - persist_to_workspace:
-          root: .
+          root: infra
           paths:
             - .
 
@@ -221,13 +221,13 @@ jobs:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - attach_workspace:
-          at: .
+          at: infra
       - run:
           name: terraform
           command: |
             terraform apply -auto-approve tfapply
       - persist_to_workspace:
-          root: .
+          root: infra
           paths:
             - .
 
@@ -236,13 +236,13 @@ jobs:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - attach_workspace:
-          at: .
+          at: infra
       - run:
           name: terraform create destroy plan
           command: |
             terraform plan -destroy -out tfdestroy -var-file terraform.tfvars
       - persist_to_workspace:
-          root: .
+          root: infra
           paths:
             - .
 
@@ -251,7 +251,7 @@ jobs:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - attach_workspace:
-          at: .
+          at: infra
       - run:
           name: terraform destroy
           command: |
