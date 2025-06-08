@@ -275,7 +275,11 @@ jobs:
           name: terraform destroy
           command: |
             cd infra
-            terraform apply -auto-approve tfdestroy
+            if [ -f "tfdestroy" ]; then
+              terraform apply -auto-approve tfdestroy
+            else
+              terraform destroy -auto-approve -var-file=terraform.tfvars
+            fi
   
   deploy-aws:
     docker:
@@ -370,9 +374,9 @@ workflows:
       # - plan-destroy:
       #     requires:
       #       - bombardier-test
-      - destroy
-          # requires:
-          #   - plan-destroy
+      - destroy:
+          requires:
+            - bombardier-test
 
   # dev-full-pipeline:
   #   when:
