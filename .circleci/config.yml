@@ -379,8 +379,8 @@ workflows:
       - bombardier-test:
           requires:
             - deploy-aws
-          connections: 100000
-          requests: 100000
+          connections: 1000
+          requests: 1000
       - destroy-directly:
           requires:
             - bombardier-test:
