@@ -237,7 +237,7 @@ jobs:
             if [ -f "tfapply" ]; then
               terraform apply -auto-approve tfapply
             else
-              terraform apply -auto-approve
+              terraform apply
             fi
       - run:
           name: terraform output
