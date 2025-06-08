@@ -237,7 +237,7 @@ jobs:
             if [ -f "tfapply" ]; then
               terraform apply -auto-approve tfapply
             else
-              terraform apply -auto-approve -var-file=terraform.tfvars
+              terraform apply -auto-approve
             fi
       - run:
           name: terraform output
@@ -278,7 +278,7 @@ jobs:
             if [ -f "tfdestroy" ]; then
               terraform apply -auto-approve tfdestroy
             else
-              terraform destroy -auto-approve -var-file=terraform.tfvars
+              terraform destroy -auto-approve
             fi
   
   deploy-aws:
