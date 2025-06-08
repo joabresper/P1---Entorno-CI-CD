@@ -156,6 +156,11 @@ jobs:
             bombardier -c << parameters.connections >> -n << parameters.requests >> http://${EC2_IP}:3000 > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
+              echo "Se detectaron errores HTTP"
+              exit 1
+            fi
+            if grep -q "the server closed connection before returning the first response byte" output.txt; then
+              echo "Se detectaron errores de conexión prematura"
               exit 1
             fi
       - discord/status:
