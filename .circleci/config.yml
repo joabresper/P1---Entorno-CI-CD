@@ -129,6 +129,9 @@ jobs:
     docker:
       - image: cimg/base:stable
     parameters:
+      url:
+        type: string
+        default: ""
       connections:
         type: integer
         default: 100
@@ -136,6 +139,8 @@ jobs:
         type: integer
         default: 10
     steps:
+      - attach_workspace:
+          at: infra
       - run:
           name: Install Bombardier
           command: |
@@ -146,7 +151,9 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c << parameters.connections >> -n << parameters.requests >> ${RENDER_APP_URL} > output.txt
+            export EC2_IP=$(cat infra/ec2_ip.txt)
+
+            bombardier -c << parameters.connections >> -n << parameters.requests >> ${EC2_IP} > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
               exit 1
@@ -295,14 +302,7 @@ jobs:
               npm install
               nohup npm start > output.log 2>&1 &
             EOF
-      - run:
-          name: Mostrar URL de la app desplegada
-          command: |
-            EC2_IP=$(cat infra/ec2_ip.txt)
-            echo "======================================="
-            echo "✅ Tu app ya está desplegada 🚀"
-            echo "🌐 URL: http://${EC2_IP}:3000"
-            echo "======================================="
+            echo "Despliegue completado en EC2. IP: ${EC2_IP}"
 
 
 workflows:
@@ -357,6 +357,11 @@ workflows:
       - deploy-aws:
           requires:
             - apply
+      - bombardier-test:
+          requires:
+            - deploy-aws
+          connections: 10000
+          requests: 10
 
   # dev-full-pipeline:
   #   when:
@@ -399,6 +404,7 @@ workflows:
   #           - apply
   #         connections: 10000
   #         requests: 10000
+  #         url: "${RENDER_APP_URL}"
   #     - plan-destroy:
   #         requires:
   #           - bombardier-test
