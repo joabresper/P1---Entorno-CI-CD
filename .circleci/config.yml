@@ -280,7 +280,7 @@ jobs:
           root: infra
           paths:
             - .
-
+ 
   destroy:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
