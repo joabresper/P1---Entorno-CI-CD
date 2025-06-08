@@ -230,20 +230,10 @@ jobs:
       - attach_workspace:
           at: infra
       - run:
-          name: Verificar archivos
-          command: |
-            cd infra
-            ls -la
-      - run:
           name: terraform apply
           command: |
             cd infra
-
-            if [ -f "tfapply" ]; then
-              terraform apply -auto-approve tfapply
-            else
-              terraform apply -auto-approve
-            fi
+            terraform apply -auto-approve tfapply
       - run:
           name: terraform output
           command: |
@@ -253,6 +243,17 @@ jobs:
           root: infra
           paths:
             - .
+  
+  apply-directly:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: terraform apply directly
+          command: |
+            cd infra
+            terraform apply -auto-approve
 
   plan-destroy:
     docker:
@@ -280,11 +281,18 @@ jobs:
           name: terraform destroy
           command: |
             cd infra
-            if [ -f "tfdestroy" ]; then
-              terraform apply -auto-approve tfdestroy
-            else
-              terraform destroy -auto-approve
-            fi
+            terraform apply -auto-approve tfdestroy
+
+    destroy-directly:
+      docker:
+        - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+      steps:
+        - checkout
+        - run:
+            name: terraform destroy directly
+            command: |
+              cd infra
+              terraform apply -auto-approve
   
   deploy-aws:
     docker:
@@ -364,22 +372,16 @@ workflows:
 
   tf-test:
     jobs:
-      # - plan-apply
-      - apply
-          # requires:
-          #   - plan-apply
+      - apply-directly
       - deploy-aws:
           requires:
-            - apply
+            - apply-directly
       - bombardier-test:
           requires:
             - deploy-aws
           connections: 10000
           requests: 100000
-      # - plan-destroy:
-      #     requires:
-      #       - bombardier-test
-      - destroy:
+      - destroy-directly:
           requires:
             - bombardier-test
 
