@@ -361,7 +361,7 @@ workflows:
           requires:
             - deploy-aws
           connections: 10000
-          requests: 10
+          requests: 100000
       - plan-destroy:
           requires:
             - bombardier-test
