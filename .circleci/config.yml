@@ -391,24 +391,24 @@ workflows:
             tags:
               only: /^v.*/ 
           requires:
-            bombardier-test
+            - bombardier-test
 
-  tf-test:
-    jobs:
-      - apply-directly
-      - deploy-aws:
-          requires:
-            - apply-directly
-      - bombardier-test:
-          requires:
-            - deploy-aws
-          connections: 10000
-          requests: 100000
-      - destroy-directly:
-          requires:
-            - bombardier-test:
-              - failed
-              - success
+  # tf-test:
+  #   jobs:
+  #     - apply-directly
+  #     - deploy-aws:
+  #         requires:
+  #           - apply-directly
+  #     - bombardier-test:
+  #         requires:
+  #           - deploy-aws
+  #         connections: 10000
+  #         requests: 100000
+  #     - destroy-directly:
+  #         requires:
+  #           - bombardier-test:
+  #             - failed
+  #             - success
 
   # dev-full-pipeline:
   #   when:
