@@ -255,7 +255,15 @@ jobs:
             cd infra
             terraform init -input=false
             terraform apply -auto-approve -var-file terraform.tfvars
-
+      - run:
+          name: terraform output
+          command: |
+            cd infra
+            terraform output -raw ec2_public_ip > ec2_ip.txt
+      - persist_to_workspace:
+          root: infra
+          paths:
+            - .
 
   plan-destroy:
     docker:
