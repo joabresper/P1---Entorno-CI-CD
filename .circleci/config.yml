@@ -344,47 +344,54 @@ jobs:
 
 
 workflows:
-  # dev-full-pipeline: 
-  #   when:
-  #     equal: [develop, << pipeline.git.branch >>]
-  #   jobs:
-  #     - create-environment
-  #     - run-tests:
-  #         requires:
-  #           - create-environment
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_ERRORS_LIST_ID"
-  #         message: "Pruebas"
-  #         requires:
-  #           - run-tests:
-  #             - failed
-  #     - sonarcloud:
-  #         requires:
-  #           - run-tests
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_ERRORS_LIST_ID"
-  #         requires:
-  #           - sonarcloud:
-  #             - failed
-  #     - deploy:
-  #         requires:
-  #           - sonarcloud
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_DONE_LIST_ID"
-  #         requires:
-  #           - sonarcloud
-  #     - check-deploy-status:
-  #         requires:
-  #           - deploy
-  #     - bombardier-test:
-  #         requires:
-  #           - check-deploy-status
-          # connections: 10000
-          # requests: 100000
-      # - pull-request:
-      #     filters:
-      #       tags:
-      #         only: /^v.*/ 
+  dev-full-pipeline: 
+    when:
+      equal: [develop, << pipeline.git.branch >>]
+    jobs:
+      - create-environment
+      - run-tests:
+          requires:
+            - create-environment
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          message: "Pruebas"
+          requires:
+            - run-tests:
+              - failed
+      - sonarcloud:
+          requires:
+            - run-tests
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          requires:
+            - sonarcloud:
+              - failed
+      - move-trello-card:
+          trello_list: "TRELLO_DONE_LIST_ID"
+          requires:
+            - sonarcloud
+      - apply-directly:
+          requires:
+            - sonarcloud
+      - deploy-aws:
+          requires:
+            - apply-directly
+      - bombardier-test:
+          requires:
+            - deploy-aws
+          connections: 100000
+          requests: 100000
+      - destroy-directly:
+          requires:
+            - bombardier-test:
+              - failed
+              - success
+      - pull-request:
+          filters:
+            tags:
+              only: /^v.*/ 
+          requires:
+            bombardier-test
 
   tf-test:
     jobs:
