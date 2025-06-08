@@ -297,12 +297,13 @@ jobs:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
-      - checkout
+      - attach_workspace:
+          at: infra
       - run:
           name: terraform destroy directly
           command: |
             cd infra
-            terraform apply -auto-approve
+            terraform destroy -auto-approve
   
   deploy-aws:
     docker:
