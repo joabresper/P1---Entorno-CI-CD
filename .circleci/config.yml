@@ -362,6 +362,12 @@ workflows:
             - deploy-aws
           connections: 10000
           requests: 10
+      - plan-destroy:
+          requires:
+            - bombardier-test
+      - destroy:
+          requires:
+            - plan-destroy
 
   # dev-full-pipeline:
   #   when:
