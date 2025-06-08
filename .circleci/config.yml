@@ -230,6 +230,11 @@ jobs:
       - attach_workspace:
           at: infra
       - run:
+          name: Verificar archivos
+          command: |
+            cd infra
+            ls -la
+      - run:
           name: terraform apply
           command: |
             cd infra
@@ -237,7 +242,7 @@ jobs:
             if [ -f "tfapply" ]; then
               terraform apply -auto-approve tfapply
             else
-              terraform apply
+              terraform apply -auto-approve
             fi
       - run:
           name: terraform output
