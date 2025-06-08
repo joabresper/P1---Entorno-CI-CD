@@ -399,7 +399,9 @@ workflows:
           requests: 100000
       - destroy-directly:
           requires:
-            - bombardier-test
+            - bombardier-test:
+              - failed
+              - success
 
   # dev-full-pipeline:
   #   when:
