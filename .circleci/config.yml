@@ -253,7 +253,9 @@ jobs:
           name: terraform apply directly
           command: |
             cd infra
-            terraform apply -auto-approve
+            terraform init -input=false
+            terraform apply -auto-approve -var-file terraform.tfvars
+
 
   plan-destroy:
     docker:
