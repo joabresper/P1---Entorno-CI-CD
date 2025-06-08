@@ -233,7 +233,12 @@ jobs:
           name: terraform apply
           command: |
             cd infra
-            terraform apply -auto-approve tfapply
+
+            if [ -f "tfapply" ]; then
+              terraform apply -auto-approve tfapply
+            else
+              terraform apply -auto-approve -var-file=terraform.tfvars
+            fi
       - run:
           name: terraform output
           command: |
@@ -350,10 +355,10 @@ workflows:
 
   tf-test:
     jobs:
-      - plan-apply
-      - apply:
-          requires:
-            - plan-apply
+      # - plan-apply
+      - apply
+          # requires:
+          #   - plan-apply
       - deploy-aws:
           requires:
             - apply
@@ -362,12 +367,12 @@ workflows:
             - deploy-aws
           connections: 10000
           requests: 100000
-      - plan-destroy:
-          requires:
-            - bombardier-test
-      - destroy:
-          requires:
-            - plan-destroy
+      # - plan-destroy:
+      #     requires:
+      #       - bombardier-test
+      - destroy
+          # requires:
+          #   - plan-destroy
 
   # dev-full-pipeline:
   #   when:
