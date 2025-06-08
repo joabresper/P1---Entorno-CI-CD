@@ -283,16 +283,16 @@ jobs:
             cd infra
             terraform apply -auto-approve tfdestroy
 
-    destroy-directly:
-      docker:
-        - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-      steps:
-        - checkout
-        - run:
-            name: terraform destroy directly
-            command: |
-              cd infra
-              terraform apply -auto-approve
+  destroy-directly:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: terraform destroy directly
+          command: |
+            cd infra
+            terraform apply -auto-approve
   
   deploy-aws:
     docker:
