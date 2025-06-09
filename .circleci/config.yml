@@ -355,40 +355,58 @@ workflows:
       - run-tests:
           requires:
             - create-environment
+          filters:
+            <<: *filters-dev
       - move-trello-card:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           message: "Pruebas"
           requires:
             - run-tests:
               - failed
+          filters:
+            <<: *filters-dev
       - sonarcloud:
           requires:
             - run-tests
+          filters:
+            <<: *filters-dev
       - move-trello-card:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           requires:
             - sonarcloud:
               - failed
+          filters:
+            <<: *filters-dev
       - move-trello-card:
           trello_list: "TRELLO_DONE_LIST_ID"
           requires:
             - sonarcloud
+          filters:
+            <<: *filters-dev
       - apply-directly:
           requires:
             - sonarcloud
+          filters:
+            <<: *filters-dev
       - deploy-aws:
           requires:
             - apply-directly
+          filters:
+            <<: *filters-dev
       - bombardier-test:
           requires:
             - deploy-aws
           connections: 1000
           requests: 1000
+          filters:
+            <<: *filters-dev
       - destroy-directly:
           requires:
             - bombardier-test:
               - failed
               - success
+          filters:
+            <<: *filters-dev
       - pull-request:
           requires:
             - bombardier-test
