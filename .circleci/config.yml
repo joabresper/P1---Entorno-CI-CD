@@ -45,6 +45,24 @@ jobs:
           success_message: "**✅ Pruebas de backend exitosas!**\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas de backend fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
+  discord_notification:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      success_message:
+        type: string
+        default: ""
+      failure_message:
+        type: string
+        default: ""
+      webhook:
+        type: string
+    steps:
+      - discord/status:
+          webhook: << parameters.webhook >>
+          success_message: << parameters.success_message >>
+          failure_message: << parameters.failure_message >>
+
   move-trello-card:
     docker:
       - image: cimg/base:stable
@@ -446,7 +464,7 @@ workflows:
           filters: &filters-infra
             branches:
               only: infra
-      - discord/status:
+      - discord_notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
           failure_message: "**❌ Falló la creación del plan de infraestructura.**"
           requires:
@@ -457,7 +475,7 @@ workflows:
             - plan-apply
           filters:
             <<: *filters-infra
-      - discord/status:
+      - discord_notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
           failure_message: "**❌ Falló la creación de la instancia del recurso.**"
           requires:
@@ -474,7 +492,7 @@ workflows:
             - plan-destroy
           filters:
             <<: *filters-infra
-      - discord/status:
+      - discord_notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
           success_message: "**✅ Prueba de Infraestructura completada con éxito!**"
           requires:
