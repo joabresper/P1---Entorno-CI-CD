@@ -344,9 +344,13 @@ jobs:
 
 
 workflows:
-  dev-full-pipeline: 
+  dev-full-pipeline:
     when:
-      equal: [develop, << pipeline.git.branch >>]
+      or:
+        - equal: [develop, << pipeline.git.branch >>]
+        - matches:
+            pattern: "^v.*"
+            value: << pipeline.git.tag >>
     jobs:
       - create-environment
       - run-tests:
