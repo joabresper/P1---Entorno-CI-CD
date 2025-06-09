@@ -418,7 +418,12 @@ workflows:
 
   tagged-pipeline:
     jobs:
-      - pull-request
+      - pull-request:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
       
 
   # tf-test:
