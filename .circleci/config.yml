@@ -445,26 +445,23 @@ workflows:
           environment: "production"
           filters: &filters-infra
             branches:
-              only: main
-            paths:
-              only:
-                - infra/**
+              only: infra
       - apply:
           requires:
             - plan-apply
-          # filters:
-          #   <<: *filters-infra
+          filters:
+            <<: *filters-infra
       - plan-destroy:
           environment: "production"
           requires:
             - apply
-          # filters:
-          #   <<: *filters-infra
+          filters:
+            <<: *filters-infra
       - destroy:
           requires:
             - plan-destroy
-          # filters:
-          #   <<: *filters-infra
+          filters:
+            <<: *filters-infra
 
   # tf-test:
   #   jobs:
