@@ -29,7 +29,7 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
-  run-tests:
+  test-backend:
     docker:
       - image: cimg/node:22.12.0
     steps:
@@ -42,8 +42,8 @@ jobs:
           command: npm test
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
-          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+          success_message: "**✅ Pruebas de backend exitosas!**\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+          failure_message: "**❌ Las pruebas de backend fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
   move-trello-card:
     docker:
@@ -209,7 +209,7 @@ jobs:
             curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
-              -d "{\"title\": \"Auto PR: develop → main\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
+              -d "{\"title\": \"Auto PR: develop → main | ${CIRCLE_TAG}\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
 
   plan-apply:
     working_directory: ~/project
@@ -352,7 +352,7 @@ workflows:
               only: develop
             tags:
               only: /^v.*/
-      - run-tests:
+      - test-backend:
           requires:
             - create-environment
           filters:
@@ -361,13 +361,13 @@ workflows:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           message: "Pruebas"
           requires:
-            - run-tests:
+            - test-backend:
               - failed
           filters:
             <<: *filters-dev
       - sonarcloud:
           requires:
-            - run-tests
+            - test-backend
           filters:
             <<: *filters-dev
       - move-trello-card:
@@ -418,12 +418,7 @@ workflows:
 
   tagged-pipeline:
     jobs:
-      - create-environment:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
+      - pull-request
       
 
   # tf-test:
@@ -448,18 +443,18 @@ workflows:
   #     equal: [develop, << pipeline.git.branch >>]
   #   jobs:
   #     - create-environment
-  #     - run-tests:
+  #     - test-backend:
   #         requires:
   #           - create-environment
   #     - move-trello-card:
   #         trello_list: "TRELLO_ERRORS_LIST_ID"
   #         message: "Pruebas"
   #         requires:
-  #           - run-tests:
+  #           - test-backend:
   #               - failed
   #     - sonarcloud:
   #         requires:
-  #           - run-tests
+  #           - test-backend
   #     - move-trello-card:
   #         trello_list: "TRELLO_ERRORS_LIST_ID"
   #         requires:
