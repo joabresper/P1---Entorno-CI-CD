@@ -388,8 +388,10 @@ workflows:
               - success
       - pull-request:
           filters:
+            branches:
+              ignore: /.*/
             tags:
-              only: /^v.*/ 
+              only: /^v.*/
           requires:
             - bombardier-test
 
