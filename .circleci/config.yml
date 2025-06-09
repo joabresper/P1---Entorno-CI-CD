@@ -440,23 +440,31 @@ workflows:
   #             only: /^v.*/
 
   infra-changes:
-    when:
-      changes:
-        - infra/**
     jobs:
       - plan-apply:
           environment: "production"
+          filters: &filters-infra
+            branches:
+              only: main
+            paths:
+              only:
+                - infra/**
       - apply:
           requires:
             - plan-apply
+          # filters:
+          #   <<: *filters-infra
       - plan-destroy:
           environment: "production"
           requires:
             - apply
+          # filters:
+          #   <<: *filters-infra
       - destroy:
           requires:
             - plan-destroy
-      
+          # filters:
+          #   <<: *filters-infra
 
   # tf-test:
   #   jobs:
