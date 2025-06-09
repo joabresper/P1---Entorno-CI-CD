@@ -446,11 +446,23 @@ workflows:
           filters: &filters-infra
             branches:
               only: infra
+      - discord/status:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          failure_message: "**❌ Falló la creación del plan de infraestructura.**"
+          requires:
+            - plan-apply:
+              - failed
       - apply:
           requires:
             - plan-apply
           filters:
             <<: *filters-infra
+      - discord/status:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          failure_message: "**❌ Falló la creación de la instancia del recurso.**"
+          requires:
+            - apply:
+              - failed
       - plan-destroy:
           environment: "production"
           requires:
@@ -462,6 +474,11 @@ workflows:
             - plan-destroy
           filters:
             <<: *filters-infra
+      - discord/status:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          success_message: "**✅ Prueba de Infraestructura completada con éxito!**"
+          requires:
+            - destroy
 
   # tf-test:
   #   jobs:
