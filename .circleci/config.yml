@@ -439,7 +439,10 @@ workflows:
   #           tags:
   #             only: /^v.*/
 
-  instncing-prod:
+  infra-changes:
+    when:
+      changes:
+        - infra/**
     jobs:
       - plan-apply:
           environment: "production"
