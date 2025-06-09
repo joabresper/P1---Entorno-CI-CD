@@ -345,51 +345,96 @@ jobs:
 
 workflows:
   dev-full-pipeline:
-    when:
-      or:
-        - equal: [develop, << pipeline.git.branch >>]
-        - matches:
-            pattern: "^v.*"
-            value: << pipeline.git.tag >>
+    # when:
+    #   or:
+    #     - equal: [develop, << pipeline.git.branch >>]
+    #     - matches:
+    #         pattern: "^v.*"
+    #         value: << pipeline.git.tag >>
     jobs:
       - create-environment
       - run-tests:
           requires:
             - create-environment
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - move-trello-card:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           message: "Pruebas"
           requires:
             - run-tests:
               - failed
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - sonarcloud:
           requires:
             - run-tests
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - move-trello-card:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           requires:
             - sonarcloud:
               - failed
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - move-trello-card:
           trello_list: "TRELLO_DONE_LIST_ID"
           requires:
             - sonarcloud
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - apply-directly:
           requires:
             - sonarcloud
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - deploy-aws:
           requires:
             - apply-directly
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - bombardier-test:
           requires:
             - deploy-aws
           connections: 1000
           requests: 1000
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - destroy-directly:
           requires:
             - bombardier-test:
               - failed
               - success
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
       - pull-request:
           filters:
             branches:
