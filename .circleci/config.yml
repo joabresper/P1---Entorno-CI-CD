@@ -45,7 +45,7 @@ jobs:
           success_message: "**✅ Pruebas de backend exitosas!**\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas de backend fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
-  discord_notification:
+  discord-notification:
     docker:
       - image: cimg/base:stable
     parameters:
@@ -248,6 +248,9 @@ jobs:
           root: infra
           paths:
             - .
+      - discord/status:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          failure_message: "**❌ Falló la creación del plan de infraestructura.**" 
 
   apply:
     docker:
@@ -269,6 +272,10 @@ jobs:
           root: infra
           paths:
             - .
+      - discord/status:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          success_message: "**✅ Se creó la instancia del servidor de produccion!**\\nURL: http://$(cat infra/ec2_ip.txt):3000"
+          failure_message: "**❌ Falló la creación de la instancia del servidor de produccion.**"
   
   apply-directly:
     parameters:
@@ -464,39 +471,11 @@ workflows:
           filters: &filters-infra
             branches:
               only: infra
-      - discord_notification:
-          webhook: "${DISCORD_INFRA_WEBHOOK}"
-          failure_message: "**❌ Falló la creación del plan de infraestructura.**"
-          requires:
-            - plan-apply:
-              - failed
       - apply:
           requires:
             - plan-apply
           filters:
             <<: *filters-infra
-      - discord_notification:
-          webhook: "${DISCORD_INFRA_WEBHOOK}"
-          failure_message: "**❌ Falló la creación de la instancia del recurso.**"
-          requires:
-            - apply:
-              - failed
-      - plan-destroy:
-          environment: "production"
-          requires:
-            - apply
-          filters:
-            <<: *filters-infra
-      - destroy:
-          requires:
-            - plan-destroy
-          filters:
-            <<: *filters-infra
-      - discord_notification:
-          webhook: "${DISCORD_INFRA_WEBHOOK}"
-          success_message: "**✅ Prueba de Infraestructura completada con éxito!**"
-          requires:
-            - destroy
 
   # tf-test:
   #   jobs:
