@@ -443,6 +443,16 @@ workflows:
               only: /^v.*/
           requires:
             - bombardier-test
+            
+  tagged-pipeline:
+    jobs:
+      - create-environment:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      
 
   # tf-test:
   #   jobs:
