@@ -252,6 +252,7 @@ jobs:
           name: terraform init & plan
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform init -input=false
             terraform plan -out tfapply -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
@@ -269,11 +270,13 @@ jobs:
           name: terraform apply
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform apply -auto-approve tfapply
       - run:
           name: terraform output
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -292,12 +295,14 @@ jobs:
           name: terraform apply directly
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform init -input=false
             terraform apply -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - run:
           name: terraform output
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -307,7 +312,7 @@ jobs:
   plan-destroy:
     parameters:
       environment:
-        type: string   
+        type: string
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
@@ -317,6 +322,7 @@ jobs:
           name: terraform create destroy plan
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform plan -destroy -out tfdestroy -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
           root: infra
@@ -333,6 +339,7 @@ jobs:
           name: terraform destroy
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform apply -auto-approve tfdestroy
 
   destroy-directly:
@@ -348,6 +355,7 @@ jobs:
           name: terraform destroy directly
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform destroy -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
   
   deploy-aws:
@@ -481,6 +489,12 @@ workflows:
           exit_code: 1
           requires:
             - plan-apply:
+              - failed
+            - apply:
+              - failed
+            - plan-destroy:
+              - failed
+            - destroy:
               - failed
           filters:
             <<: *filters-infra
