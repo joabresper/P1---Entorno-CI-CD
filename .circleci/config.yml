@@ -295,7 +295,7 @@ jobs:
           name: terraform apply directly
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform init -input=false
             terraform apply -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - run:
