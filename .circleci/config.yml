@@ -252,7 +252,7 @@ jobs:
           name: terraform init & plan
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform init -input=false
             terraform plan -out tfapply -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
@@ -270,13 +270,13 @@ jobs:
           name: terraform apply
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform apply -auto-approve tfapply
       - run:
           name: terraform output
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -302,7 +302,7 @@ jobs:
           name: terraform output
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -322,7 +322,7 @@ jobs:
           name: terraform create destroy plan
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform plan -destroy -out tfdestroy -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
           root: infra
@@ -339,7 +339,7 @@ jobs:
           name: terraform destroy
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform apply -auto-approve tfdestroy
 
   destroy-directly:
@@ -355,7 +355,7 @@ jobs:
           name: terraform destroy directly
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform destroy -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
   
   deploy-aws:
