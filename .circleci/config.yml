@@ -248,6 +248,9 @@ jobs:
           root: infra
           paths:
             - .
+      - run:
+          name: Instalar curl xq esta imagen de docker no lo trae
+          command: sudo apt-get update && sudo apt-get install -y curl
       - discord/status:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
           failure_message: "**❌ Falló la creación del plan de infraestructura.**" 
@@ -272,6 +275,9 @@ jobs:
           root: infra
           paths:
             - .
+      - run:
+          name: Instalar curl xq esta imagen de docker no lo trae
+          command: sudo apt-get update && sudo apt-get install -y curl
       - discord/status:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
           success_message: "**✅ Se creó la instancia del servidor de produccion!**\\nURL: http://$(cat infra/ec2_ip.txt):3000"
