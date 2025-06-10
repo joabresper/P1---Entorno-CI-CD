@@ -224,6 +224,10 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
   
   pull-request:
+    parameters:
+      message:
+        type: string
+        default: ""
     docker:
       - image: cimg/base:stable
     steps:
@@ -233,7 +237,7 @@ jobs:
             curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
-              -d "{\"title\": \"Auto PR: develop → main | ${CIRCLE_TAG}\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
+              -d "{\"title\": \"Auto PR: ${CIRCLE_BRANCH} → main | ${CIRCLE_TAG}\", \"head\": \"${CIRCLE_BRANCH}\", \"base\": \"main\", \"body\": \"Auto PR - << parameters.message >> Fusionando cambios de ${CIRCLE_BRANCH} a main.\"}"
 
   plan-apply:
     working_directory: ~/project
@@ -446,6 +450,7 @@ workflows:
           filters:
             <<: *filters-dev
       - pull-request:
+          message: "Develop pipeline completado con exito"
           requires:
             - bombardier-test
           filters:
@@ -486,7 +491,13 @@ workflows:
             <<: *filters-infra
       - discord-notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
-          success_message: "**✅ Instancia EC2 creada exitosamente!**"
+          success_message: "**✅ Infraestructura aws creada exitosamente!**"
+          requires:
+            - apply
+          filters:
+            <<: *filters-infra
+      - pull-request:
+          message: "Infraestructura pipeline completado con exito"
           requires:
             - apply
           filters:
