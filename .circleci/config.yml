@@ -482,6 +482,12 @@ workflows:
           requires:
             - plan-apply:
               - failed
+            - apply:
+              - failed
+            - plan-destroy:
+              - failed
+            - destroy:
+              - failed
           filters:
             <<: *filters-infra
       - apply:
