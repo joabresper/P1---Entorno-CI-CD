@@ -261,10 +261,6 @@ jobs:
       - attach_workspace:
           at: infra
       - run:
-          name: instalar terraform
-          command: |
-            
-      - run:
           name: terraform apply
           command: |
             cd infra
