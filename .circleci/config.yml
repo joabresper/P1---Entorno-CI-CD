@@ -239,6 +239,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Force unlock Terraform (local backend)
+          command: rm -f .terraform/terraform.tfstate.lock.info || true
+      - run:
           name: terraform init & plan
           command: |
             cd infra
