@@ -470,6 +470,8 @@ workflows:
           webhook: "${DISCORD_WEBHOOK}"
           failure_message: "**❌ Fallo en las pruebas de despliegue**"
           exit_code: 1
+          filters:
+            <<: *filters-dev
           requires:
             - apply-directly:
               - failed
