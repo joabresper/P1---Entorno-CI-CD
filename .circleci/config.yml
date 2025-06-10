@@ -270,7 +270,6 @@ jobs:
           name: terraform apply
           command: |
             cd infra
-            terraform workspace select ${CIRCLE_BRANCH}
             terraform apply -auto-approve tfapply
       - run:
           name: terraform output
