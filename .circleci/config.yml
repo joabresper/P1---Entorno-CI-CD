@@ -276,6 +276,7 @@ jobs:
           name: terraform output
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -301,6 +302,7 @@ jobs:
           name: terraform output
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
