@@ -2,7 +2,7 @@ terraform {
   cloud {
     organization = "Entorno-CI-CD"
     workspaces {
-      name = "infra-develop"
+      name = "P1---Entorno-CI-CD"
     }
   }
 
