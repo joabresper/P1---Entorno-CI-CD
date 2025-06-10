@@ -65,9 +65,9 @@ jobs:
           name: forzar salida
           command: exit << parameters.exit_code >>
       - discord/status:
-          webhook: << parameters.webhook >> 
-          success_message: << parameters.success_message >>
-          failure_message: << parameters.failure_message >>
+          webhook: "<< parameters.webhook >>" 
+          success_message: "<< parameters.success_message >>"
+          failure_message: "<< parameters.failure_message >>"
 
   move-trello-card:
     docker:
