@@ -72,5 +72,5 @@ resource "aws_instance" "production_server" {
 
 output "ec2_public_ip" {
   description = "IP pública de la instancia EC2"
-  value = var.environment == "production" ? aws_instance.production_server[0].public_ip : var.environment == "develop" ? aws_instance.dev_test_server[0].public_ip : aws_instance.infra_test_server[0].public_ip
+  value = aws_instance.production_server[0].public_ip || aws_instance.dev_test_server[0].public_ip || aws_instance.infra_test_server[0].public_ip
 }
