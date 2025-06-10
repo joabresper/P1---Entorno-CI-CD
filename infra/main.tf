@@ -3,7 +3,7 @@ terraform {
     organization = "Entorno-CI-CD"
 
     workspaces {
-      name = "develop" 
+      name = "develop"
     }
   }
 
@@ -17,7 +17,7 @@ provider "aws" {
 resource "aws_instance" "dev_test_server" {
   ami           = var.ami_id
   instance_type = var.instance_type
-  count         = var.environment == "development" ? 1 : 0
+  count         = var.environment == "develop" ? 1 : 0
 
   user_data = <<-EOF
               #!/bin/bash

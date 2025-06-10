@@ -14,7 +14,7 @@ variable "instance_type" {
 }
 
 variable "environment" {
-  description = "Entorno para el que se crea la instancia (production/develpo)"
+  description = "Entorno para el que se crea la instancia (production/develop)"
   type        = string
 }
 
