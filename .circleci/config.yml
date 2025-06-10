@@ -249,14 +249,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Inyectar workspace en terraform.tfvars
-          command: |
-            echo "workspace = \"${CIRCLE_BRANCH}\"" >> infra/terraform.tfvars
-            cat infra/terraform.tfvars
-      - run:
           name: terraform init & plan
           command: |
             cd infra
+            export TF_WORKSPACE="${CIRCLE_BRANCH}"
             terraform init -input=false
             terraform workspace select ${CIRCLE_BRANCH}
             terraform plan -out tfapply -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
