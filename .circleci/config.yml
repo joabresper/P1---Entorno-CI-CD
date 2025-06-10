@@ -527,7 +527,7 @@ workflows:
             <<: *filters-infra
       - discord-notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
-          success_message: "**✅ Infraestructura aws creada y probada exitosamente!** Ya puede ser implementada en producción."
+          success_message: "**✅ Infraestructura aws creada y probada exitosamente!**\\nYa puede ser implementada en producción."
           requires:
             - destroy
           filters:
