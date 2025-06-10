@@ -471,7 +471,7 @@ workflows:
   infra-changes: 
     jobs:
       - plan-apply:
-          environment: "production"
+          environment: "infra"
           filters: &filters-infra
             branches:
               only: infra
@@ -496,10 +496,21 @@ workflows:
             - apply
           filters:
             <<: *filters-infra
+      - plan-destroy:
+          environment: "infra"
+          requires:
+            - apply
+          filters:
+            <<: *filters-infra
+      - destroy:
+          requires:
+            - plan-destroy
+          filters:
+            <<: *filters-infra
       - pull-request:
           message: "Infraestructura pipeline completado con exito"
           requires:
-            - apply
+            - plan-destroy
           filters:
             <<: *filters-infra
 
