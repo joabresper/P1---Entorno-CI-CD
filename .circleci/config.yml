@@ -249,9 +249,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Set workspace
+          command: echo 'terraform { cloud { organization = "Entorno-CI-CD" workspaces { name = "${CIRCLE_BRANCH}" } } }' > backend_override.tf
+      - run:
           name: terraform init & plan
-          environment:
-            TF_WORKSPACE: ${CIRCLE_BRANCH}
           command: |
             cd infra
             terraform init -input=false
