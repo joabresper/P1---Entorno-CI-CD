@@ -466,6 +466,17 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+      - discord-notification:
+          webhook: "${DISCORD_WEBHOOK}"
+          failure_message: "**❌ Fallo en las pruebas de despliegue**"
+          exit_code: 1
+          requires:
+            - apply-directly:
+              - failed
+            - deploy-aws:
+              - failed
+            - destroy-directly:
+              - failed
 
   # tagged-pipeline:
   #   jobs:
