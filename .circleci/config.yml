@@ -252,6 +252,7 @@ jobs:
           name: Inyectar workspace en terraform.tfvars
           command: |
             echo "workspace = \"${CIRCLE_BRANCH}\"" >> infra/terraform.tfvars
+            echo infra/terraform.tfvars
       - run:
           name: terraform init & plan
           command: |
