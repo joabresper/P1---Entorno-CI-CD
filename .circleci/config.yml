@@ -249,8 +249,7 @@ jobs:
           paths:
             - .
       - run:
-          name: Instalar curl xq esta imagen de docker no lo trae
-          command: sudo apt-get update && sudo apt-get install -y curl
+          shell: /bin/sh
       - discord/status:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
           failure_message: "**❌ Falló la creación del plan de infraestructura.**" 
