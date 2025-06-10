@@ -1,9 +1,6 @@
 terraform {
   cloud {
     organization = "Entorno-CI-CD"
-    workspaces {
-      name = "P1---Entorno-CI-CD"
-    }
   }
 
   required_version = ">= 1.2.0"
