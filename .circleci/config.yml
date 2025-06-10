@@ -62,6 +62,7 @@ jobs:
         default: 0
     steps:
       - run:
+          name: forzar salida
           command: exit << parameters.exit_code >>
       - discord/status:
           webhook: << parameters.webhook >> 
