@@ -1,0 +1,7 @@
+region = "us-east-2"
+
+ami_id = "ami-04f167a56786e4b09"
+
+instance_type = "t2.micro"
+
+ssh-public-key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+aMqzhlymh+/QQYG+DiIJmgADim2Ld9l/eRfQZtN8uQ24SpuXsloEFgZPlziJn3zZZhguPEEDOWoDqewCNrqqJ2r8dABvulj48wFMPEEwIS+8JpP1zhiXNqC296w6kdn3Xcz0zvyTFM60InX8Z/jfUHwnCf5JBC+4TTjtJ9E4wjR6IQe2q5gxW14UXNMel5UKuB68xsZo80C/6wm1Ah5xMFGBusq4lADHpGP/SXcf71UFzptIZdQZnxUExHngP1ksJv+PRRK2yLBF1l5xs2LNXSE/5iSSc1t77eveNTQ31cC57a8q0+BIygQ2Zio2PQY7lgmRYICvnBMg3Lja/MM7"

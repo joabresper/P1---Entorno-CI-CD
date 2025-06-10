@@ -2,6 +2,9 @@ version: 2.1
 
 node_image: &node_image cimg/node:22.12.0
 
+imports:
+  - .circleci/terraform.yml
+
 orbs:
   discord: antonioned/discord@0.1.0
   sonarcloud: sonarsource/sonarcloud@3.0
@@ -26,7 +29,7 @@ jobs:
           webhook: "${DISCORD_WEBHOOK}"
           failure_message: "**❌ Falló la creación del entorno.** Revisá los pasos de instalación.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
-  run-tests:
+  test-backend:
     docker:
       - image: cimg/node:22.12.0
     steps:
@@ -39,8 +42,32 @@ jobs:
           command: npm test
       - discord/status:
           webhook: "${DISCORD_WEBHOOK}"
-          success_message: "**✅ Pruebas completadas con éxito!** Todo salió bien!\\n\\nUsuario: **${CIRCLE_USERNAME}**"
-          failure_message: "**❌ Las pruebas fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+          success_message: "**✅ Pruebas de backend exitosas!**\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+          failure_message: "**❌ Las pruebas de backend fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
+
+  discord-notification:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      success_message:
+        type: string
+        default: ""
+      failure_message:
+        type: string
+        default: ""
+      webhook:
+        type: string
+      exit_code:
+        type: integer
+        default: 0
+    steps:
+      - run:
+          name: forzar salida
+          command: exit << parameters.exit_code >>
+      - discord/status:
+          webhook: "<< parameters.webhook >>" 
+          success_message: "<< parameters.success_message >>"
+          failure_message: "<< parameters.failure_message >>"
 
   move-trello-card:
     docker:
@@ -126,6 +153,9 @@ jobs:
     docker:
       - image: cimg/base:stable
     parameters:
+      url:
+        type: string
+        default: ""
       connections:
         type: integer
         default: 100
@@ -133,6 +163,8 @@ jobs:
         type: integer
         default: 10
     steps:
+      - attach_workspace:
+          at: infra
       - run:
           name: Install Bombardier
           command: |
@@ -143,9 +175,16 @@ jobs:
       - run:
           name: Run concurrency test with Bombardier
           command: |
-            bombardier -c << parameters.connections >> -n << parameters.requests >> ${RENDER_APP_URL} > output.txt
+            export EC2_IP=$(cat infra/ec2_ip.txt)
+
+            bombardier -c << parameters.connections >> -n << parameters.requests >> http://${EC2_IP}:3000 > output.txt
             cat output.txt
             if grep -qE "4xx - [1-9]|5xx - [1-9]" output.txt; then
+              echo "Se detectaron errores HTTP"
+              exit 1
+            fi
+            if grep -q "the server closed connection before returning the first response byte" output.txt; then
+              echo "Se detectaron errores de conexión prematura"
               exit 1
             fi
       - discord/status:
@@ -185,6 +224,10 @@ jobs:
           failure_message: "**❌ SonarCloud análisis falló.**\\nRevisá los resultados de la calidad del código." 
   
   pull-request:
+    parameters:
+      message:
+        type: string
+        default: ""
     docker:
       - image: cimg/base:stable
     steps:
@@ -194,51 +237,384 @@ jobs:
             curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
-              -d "{\"title\": \"Auto PR: develop → main\", \"head\": \"develop\", \"base\": \"main\", \"body\": \"Auto PR - Develop pipeline completado con éxito. Fusionando cambios de develop a main.\"}"
+              -d "{\"title\": \"Auto PR: ${CIRCLE_BRANCH} → main | ${CIRCLE_TAG}\", \"head\": \"${CIRCLE_BRANCH}\", \"base\": \"main\", \"body\": \"Auto PR - << parameters.message >> Fusionando cambios de ${CIRCLE_BRANCH} a main.\"}"
+
+  plan-apply:
+    working_directory: ~/project
+    parameters:
+      environment:
+        type: string        
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: terraform init & plan
+          command: |
+            cd infra
+            terraform init -input=false
+            terraform plan -out tfapply -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
+      - persist_to_workspace:
+          root: infra
+          paths:
+            - .
+
+  apply:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: infra
+      - run:
+          name: terraform apply
+          command: |
+            cd infra
+            terraform apply -auto-approve tfapply
+      - run:
+          name: terraform output
+          command: |
+            cd infra
+            terraform output -raw ec2_public_ip > ec2_ip.txt
+      - persist_to_workspace:
+          root: infra
+          paths:
+            - .
+  
+  apply-directly:
+    parameters:
+      environment:
+        type: string   
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: terraform apply directly
+          command: |
+            cd infra
+            terraform init -input=false
+            terraform apply -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
+      - run:
+          name: terraform output
+          command: |
+            cd infra
+            terraform output -raw ec2_public_ip > ec2_ip.txt
+      - persist_to_workspace:
+          root: infra
+          paths:
+            - .
+
+  plan-destroy:
+    parameters:
+      environment:
+        type: string   
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: infra
+      - run:
+          name: terraform create destroy plan
+          command: |
+            cd infra
+            terraform plan -destroy -out tfdestroy -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
+      - persist_to_workspace:
+          root: infra
+          paths:
+            - .
+ 
+  destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: infra
+      - run:
+          name: terraform destroy
+          command: |
+            cd infra
+            terraform apply -auto-approve tfdestroy
+
+  destroy-directly:
+    parameters:
+      environment:
+        type: string   
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: infra
+      - run:
+          name: terraform destroy directly
+          command: |
+            cd infra
+            terraform destroy -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
+  
+  deploy-aws:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - attach_workspace:
+          at: infra
+      - run:
+          name: Deploy en EC2
+          command: |
+            echo "${EC2_SSH_PRIVATE_KEY}" | sed 's/\\n/\n/g' > key.pem
+            chmod 600 key.pem
+
+            export EC2_IP=$(cat infra/ec2_ip.txt)
+
+            until nc -zvw5 ${EC2_IP} 22; do
+              sleep 5
+              echo "Reintentando conexión SSH..."
+            done
+
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${EC2_IP} \<< EOF
+              sudo apt update
+              sudo apt install -y git nodejs npm
+              git clone https://github.com/joabresper/P1---Entorno-CI-CD.git
+              cd P1---Entorno-CI-CD
+              npm install
+              nohup npm start > output.log 2>&1 &
+            EOF
+            echo "Despliegue completado en: http://${EC2_IP}:3000"
+
 
 workflows:
-  dev-full-pipeline: 
-    when:
-      equal: [develop, << pipeline.git.branch >>]
+  dev-full-pipeline:
     jobs:
-      - create-environment
-      - run-tests:
+      - create-environment:
+          filters: &filters-dev
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
+      - test-backend:
           requires:
             - create-environment
+          filters:
+            <<: *filters-dev
       - move-trello-card:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           message: "Pruebas"
           requires:
-            - run-tests:
+            - test-backend:
               - failed
+          filters:
+            <<: *filters-dev
       - sonarcloud:
           requires:
-            - run-tests
+            - test-backend
+          filters:
+            <<: *filters-dev
       - move-trello-card:
           trello_list: "TRELLO_ERRORS_LIST_ID"
           requires:
             - sonarcloud:
               - failed
-      - deploy:
-          requires:
-            - sonarcloud
+          filters:
+            <<: *filters-dev
       - move-trello-card:
           trello_list: "TRELLO_DONE_LIST_ID"
           requires:
             - sonarcloud
-      - check-deploy-status:
+          filters:
+            <<: *filters-dev
+      - apply-directly:
+          environment: "development"
           requires:
-            - deploy
+            - sonarcloud
+          filters:
+            <<: *filters-dev
+      - deploy-aws:
+          requires:
+            - apply-directly
+          filters:
+            <<: *filters-dev
       - bombardier-test:
           requires:
-            - check-deploy-status
-          # connections: 10000
-          # requests: 100000
-      - pull-request:
+            - deploy-aws
+          connections: 1000
+          requests: 1000
           filters:
+            <<: *filters-dev
+      - destroy-directly:
+          environment: "development"
+          requires:
+            - bombardier-test:
+              - failed
+              - success
+          filters:
+            <<: *filters-dev
+      - pull-request:
+          message: "Develop pipeline completado con exito"
+          requires:
+            - bombardier-test
+          filters:
+            branches:
+              ignore: /.*/
             tags:
-              only: /^v.*/ 
+              only: /^v.*/
 
+  # tagged-pipeline:
+  #   jobs:
+  #     - pull-request:
+  #         filters:
+  #           branches:
+  #             ignore: /.*/
+  #           tags:
+  #             only: /^v.*/
+
+  infra-changes: 
+    jobs:
+      - plan-apply:
+          environment: "infra"
+          filters: &filters-infra
+            branches:
+              only: infra
+      - discord-notification:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          failure_message: "**❌ Falló el plan de infraestructura.**"
+          exit_code: 1
+          requires:
+            - plan-apply:
+              - failed
+          filters:
+            <<: *filters-infra
+      - apply:
+          requires:
+            - plan-apply
+          filters:
+            <<: *filters-infra
+      - plan-destroy:
+          environment: "infra"
+          requires:
+            - apply
+          filters:
+            <<: *filters-infra
+      - destroy:
+          requires:
+            - plan-destroy
+          filters:
+            <<: *filters-infra
+      - discord-notification:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          success_message: "**✅ Infraestructura aws creada y probada exitosamente!**"
+          requires:
+            - destroy
+          filters:
+            <<: *filters-infra
+      - pull-request:
+          message: "Infraestructura pipeline completado con exito"
+          requires:
+            - destroy
+          filters:
+            <<: *filters-infra
+
+  main-pipeline:
+    jobs:
+      - plan-apply:
+          environment: "production"
+          filters: &filters-main
+            branches:
+              only: main
+      - apply:
+          requires:
+            - plan-apply
+          filters:
+            <<: *filters-main
+      - deploy-aws:
+          requires:
+            - apply
+          filters:
+            <<: *filters-main
+      - discord-notification:
+          webhook: "${DISCORD_DEPLOY_WEBHOOK}"
+          success_message: "**✅ Deploy en producción completado exitosamente!**"
+          requires:
+            - deploy-aws
+      - discord-notification:
+          webhook: "${DISCORD_DEPLOY_WEBHOOK}"
+          failure_message: "**❌ Falló el deploy en producción.**"
+          exit_code: 1
+          requires:
+            - plan-apply:
+              - failed
+            - apply:
+              - failed
+            - deploy-aws:
+              - failed
+            
+
+  # tf-test:
+  #   jobs:
+  #     - apply-directly
+  #     - deploy-aws:
+  #         requires:
+  #           - apply-directly
+  #     - bombardier-test:
+  #         requires:
+  #           - deploy-aws
+  #         connections: 10000
+  #         requests: 100000
+  #     - destroy-directly:
+  #         requires:
+  #           - bombardier-test:
+  #             - failed
+  #             - success
+
+  # dev-full-pipeline:
+  #   when:
+  #     equal: [develop, << pipeline.git.branch >>]
+  #   jobs:
+  #     - create-environment
+  #     - test-backend:
+  #         requires:
+  #           - create-environment
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_ERRORS_LIST_ID"
+  #         message: "Pruebas"
+  #         requires:
+  #           - test-backend:
+  #               - failed
+  #     - sonarcloud:
+  #         requires:
+  #           - test-backend
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_ERRORS_LIST_ID"
+  #         requires:
+  #           - sonarcloud:
+  #               - failed
+  #     - move-trello-card:
+  #         trello_list: "TRELLO_DONE_LIST_ID"
+  #         requires:
+  #           - sonarcloud
+  #     - plan-apply:
+  #         requires:
+  #           - sonarcloud
+  #     - approve-plan:
+  #         type: approval
+  #         requires:
+  #           - plan-apply
+  #     - apply:
+  #         requires:
+  #           - approve-plan
+  #     - bombardier-test:
+  #         requires:
+  #           - apply
+  #         connections: 10000
+  #         requests: 10000
+  #         url: "${RENDER_APP_URL}"
+  #     - plan-destroy:
+  #         requires:
+  #           - bombardier-test
+  #     - destroy:
+  #         requires:
+  #           - plan-destroy
+      
 
   # bombardier-pass:
   #   jobs:
