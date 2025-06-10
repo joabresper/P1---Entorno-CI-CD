@@ -486,7 +486,7 @@ workflows:
             <<: *filters-infra
       - discord-notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
-          success_message: "**✅ Instancia EC2 creada exitosamente!**\nURL: http://$(cat infra/ec2_ip.txt):3000"
+          success_message: "**✅ Instancia EC2 creada exitosamente!**"
           requires:
             - apply
           filters:
