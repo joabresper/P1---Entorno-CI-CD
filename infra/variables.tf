@@ -27,7 +27,3 @@ variable "ssh-public-key" {
 	description = "Clave pública SSH para acceso a EC2"
 	type		= string
 }
-
-variable "workspace" {
-  type = string
-}
