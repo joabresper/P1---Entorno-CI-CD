@@ -3,7 +3,7 @@ terraform {
     organization = "Entorno-CI-CD"
 
     workspaces {
-      name = "develop"
+      name = var.workspace
     }
   }
 
