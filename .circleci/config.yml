@@ -432,7 +432,7 @@ workflows:
           filters:
             <<: *filters-dev
       - apply-directly:
-          environment: "development"
+          environment: "develop"
           requires:
             - sonarcloud
           filters:
@@ -450,7 +450,7 @@ workflows:
           filters:
             <<: *filters-dev
       - destroy-directly:
-          environment: "development"
+          environment: "develop"
           requires:
             - bombardier-test:
               - failed
