@@ -250,10 +250,11 @@ jobs:
       - checkout
       - run:
           name: terraform init & plan
+          environment:
+            TF_WORKSPACE: ${CIRCLE_BRANCH}
           command: |
             cd infra
             terraform init -input=false
-            terraform workspace select ${CIRCLE_BRANCH}
             terraform plan -out tfapply -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
           root: infra
