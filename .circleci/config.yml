@@ -468,7 +468,7 @@ workflows:
   #           tags:
   #             only: /^v.*/
 
-  infra-changes:
+  infra-changes: 
     jobs:
       - plan-apply:
           environment: "production"
