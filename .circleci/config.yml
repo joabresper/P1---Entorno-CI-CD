@@ -392,179 +392,179 @@ jobs:
 
 
 workflows:
-  # dev-full-pipeline:
-  #   jobs:
-  #     - create-environment:
-  #         filters: &filters-dev
-  #           branches:
-  #             only: develop
-  #           tags:
-  #             only: /^v.*/
-  #     - test-backend:
-  #         requires:
-  #           - create-environment
-  #         filters:
-  #           <<: *filters-dev
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_ERRORS_LIST_ID"
-  #         message: "Pruebas"
-  #         requires:
-  #           - test-backend:
-  #             - failed
-  #         filters:
-  #           <<: *filters-dev
-  #     - sonarcloud:
-  #         requires:
-  #           - test-backend
-  #         filters:
-  #           <<: *filters-dev
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_ERRORS_LIST_ID"
-  #         requires:
-  #           - sonarcloud:
-  #             - failed
-  #         filters:
-  #           <<: *filters-dev
-  #     - move-trello-card:
-  #         trello_list: "TRELLO_DONE_LIST_ID"
-  #         requires:
-  #           - sonarcloud
-  #         filters:
-  #           <<: *filters-dev
-  #     - apply-directly:
-  #         environment: "develop"
-  #         requires:
-  #           - sonarcloud
-  #         filters:
-  #           <<: *filters-dev
-  #     - deploy-aws:
-  #         requires:
-  #           - apply-directly
-  #         filters:
-  #           <<: *filters-dev
-  #     - bombardier-test:
-  #         requires:
-  #           - deploy-aws
-  #         connections: 1000
-  #         requests: 1000
-  #         filters:
-  #           <<: *filters-dev
-  #     - destroy-directly:
-  #         environment: "develop"
-  #         requires:
-  #           - bombardier-test:
-  #             - failed
-  #             - success
-  #         filters:
-  #           <<: *filters-dev
-  #     - pull-request:
-  #         message: "Develop pipeline completado con exito"
-  #         requires:
-  #           - bombardier-test
-  #         filters:
-  #           branches:
-  #             ignore: /.*/
-  #           tags:
-  #             only: /^v.*/
-  #     - discord-notification:
-  #         webhook: "${DISCORD_WEBHOOK}"
-  #         failure_message: "**❌ Fallo en las pruebas de despliegue**"
-  #         exit_code: 1
-  #         filters:
-  #           <<: *filters-dev
-  #         requires:
-  #           - apply-directly:
-  #             - failed
-  #           - deploy-aws:
-  #             - failed
-  #           - destroy-directly:
-  #             - failed
+  dev-full-pipeline:
+    jobs:
+      - create-environment:
+          filters: &filters-dev
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
+      - test-backend:
+          requires:
+            - create-environment
+          filters:
+            <<: *filters-dev
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          message: "Pruebas"
+          requires:
+            - test-backend:
+              - failed
+          filters:
+            <<: *filters-dev
+      - sonarcloud:
+          requires:
+            - test-backend
+          filters:
+            <<: *filters-dev
+      - move-trello-card:
+          trello_list: "TRELLO_ERRORS_LIST_ID"
+          requires:
+            - sonarcloud:
+              - failed
+          filters:
+            <<: *filters-dev
+      - move-trello-card:
+          trello_list: "TRELLO_DONE_LIST_ID"
+          requires:
+            - sonarcloud
+          filters:
+            <<: *filters-dev
+      - apply-directly:
+          environment: "develop"
+          requires:
+            - sonarcloud
+          filters:
+            <<: *filters-dev
+      - deploy-aws:
+          requires:
+            - apply-directly
+          filters:
+            <<: *filters-dev
+      - bombardier-test:
+          requires:
+            - deploy-aws
+          connections: 1000
+          requests: 1000
+          filters:
+            <<: *filters-dev
+      - destroy-directly:
+          environment: "develop"
+          requires:
+            - bombardier-test:
+              - failed
+              - success
+          filters:
+            <<: *filters-dev
+      - pull-request:
+          message: "Develop pipeline completado con exito"
+          requires:
+            - bombardier-test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - discord-notification:
+          webhook: "${DISCORD_WEBHOOK}"
+          failure_message: "**❌ Fallo en las pruebas de despliegue**"
+          exit_code: 1
+          filters:
+            <<: *filters-dev
+          requires:
+            - apply-directly:
+              - failed
+            - deploy-aws:
+              - failed
+            - destroy-directly:
+              - failed
 
-  # infra-changes: 
-  #   jobs:
-  #     - plan-apply:
-  #         environment: "infra"
-  #         filters: &filters-infra
-  #           branches:
-  #             only: infra
-  #     - discord-notification:
-  #         webhook: "${DISCORD_INFRA_WEBHOOK}"
-  #         failure_message: "**❌ Falló el plan de infraestructura.**"
-  #         exit_code: 1
-  #         requires:
-  #           - plan-apply:
-  #             - failed
-  #           - apply:
-  #             - failed
-  #           - plan-destroy:
-  #             - failed
-  #           - destroy:
-  #             - failed
-  #         filters:
-  #           <<: *filters-infra
-  #     - apply:
-  #         requires:
-  #           - plan-apply
-  #         filters:
-  #           <<: *filters-infra
-  #     - plan-destroy:
-  #         environment: "infra"
-  #         requires:
-  #           - apply
-  #         filters:
-  #           <<: *filters-infra
-  #     - destroy:
-  #         requires:
-  #           - plan-destroy
-  #         filters:
-  #           <<: *filters-infra
-  #     - discord-notification:
-  #         webhook: "${DISCORD_INFRA_WEBHOOK}"
-  #         success_message: "**✅ Infraestructura aws creada y probada exitosamente!**\\nYa puede ser implementada en producción."
-  #         requires:
-  #           - destroy
-  #         filters:
-  #           <<: *filters-infra
-  #     - pull-request:
-  #         message: "Infraestructura pipeline completado con exito"
-  #         requires:
-  #           - destroy
-  #         filters:
-  #           <<: *filters-infra
+  infra-changes: 
+    jobs:
+      - plan-apply:
+          environment: "infra"
+          filters: &filters-infra
+            branches:
+              only: infra
+      - discord-notification:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          failure_message: "**❌ Falló el plan de infraestructura.**"
+          exit_code: 1
+          requires:
+            - plan-apply:
+              - failed
+            - apply:
+              - failed
+            - plan-destroy:
+              - failed
+            - destroy:
+              - failed
+          filters:
+            <<: *filters-infra
+      - apply:
+          requires:
+            - plan-apply
+          filters:
+            <<: *filters-infra
+      - plan-destroy:
+          environment: "infra"
+          requires:
+            - apply
+          filters:
+            <<: *filters-infra
+      - destroy:
+          requires:
+            - plan-destroy
+          filters:
+            <<: *filters-infra
+      - discord-notification:
+          webhook: "${DISCORD_INFRA_WEBHOOK}"
+          success_message: "**✅ Infraestructura aws creada y probada exitosamente!**\\nYa puede ser implementada en producción."
+          requires:
+            - destroy
+          filters:
+            <<: *filters-infra
+      - pull-request:
+          message: "Infraestructura pipeline completado con exito"
+          requires:
+            - destroy
+          filters:
+            <<: *filters-infra
 
-  # main-pipeline:
-  #   jobs:
-  #     - plan-apply:
-  #         environment: "production"
-  #         filters: &filters-main
-  #           branches:
-  #             only: main
-  #     - apply:
-  #         requires:
-  #           - plan-apply
-  #         filters:
-  #           <<: *filters-main
-  #     - deploy-aws:
-  #         requires:
-  #           - apply
-  #         filters:
-  #           <<: *filters-main
-  #     - discord-notification:
-  #         webhook: "${DISCORD_DEPLOY_WEBHOOK}"
-  #         success_message: "**✅ Deploy en producción completado exitosamente!**"
-  #         requires:
-  #           - deploy-aws
-  #     - discord-notification:
-  #         webhook: "${DISCORD_DEPLOY_WEBHOOK}"
-  #         failure_message: "**❌ Falló el deploy en producción.**"
-  #         exit_code: 1
-  #         requires:
-  #           - plan-apply:
-  #             - failed
-  #           - apply:
-  #             - failed
-  #           - deploy-aws:
-  #             - failed
+  main-pipeline:
+    jobs:
+      - plan-apply:
+          environment: "production"
+          filters: &filters-main
+            branches:
+              only: main
+      - apply:
+          requires:
+            - plan-apply
+          filters:
+            <<: *filters-main
+      - deploy-aws:
+          requires:
+            - apply
+          filters:
+            <<: *filters-main
+      - discord-notification:
+          webhook: "${DISCORD_DEPLOY_WEBHOOK}"
+          success_message: "**✅ Deploy en producción completado exitosamente!**"
+          requires:
+            - deploy-aws
+      - discord-notification:
+          webhook: "${DISCORD_DEPLOY_WEBHOOK}"
+          failure_message: "**❌ Falló el deploy en producción.**"
+          exit_code: 1
+          requires:
+            - plan-apply:
+              - failed
+            - apply:
+              - failed
+            - deploy-aws:
+              - failed
             
 
   # tf-test:
