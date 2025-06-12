@@ -237,7 +237,7 @@ jobs:
             curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
-              -d "{\"title\": \"Auto PR: ${CIRCLE_BRANCH} → main | ${CIRCLE_TAG}\", \"head\": \"${CIRCLE_BRANCH}\", \"base\": \"main\", \"body\": \"Auto PR - << parameters.message >> Fusionando cambios de ${CIRCLE_BRANCH} a main.\"}"
+              -d "{\"title\": \"Auto PR: ${CIRCLE_BRANCH:-develop} → main | ${CIRCLE_TAG}\", \"head\": \"${CIRCLE_BRANCH:-develop}\", \"base\": \"main\", \"body\": \"Auto PR - << parameters.message >> Fusionando cambios de ${CIRCLE_BRANCH:-develop} a main.\"}"
 
   plan-apply:
     working_directory: ~/project
@@ -252,7 +252,7 @@ jobs:
           name: terraform init & plan
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform init -input=false
             terraform plan -out tfapply -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
@@ -270,13 +270,13 @@ jobs:
           name: terraform apply
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform apply -auto-approve tfapply
       - run:
           name: terraform output
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -295,14 +295,14 @@ jobs:
           name: terraform apply directly
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform init -input=false
             terraform apply -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - run:
           name: terraform output
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform output -raw ec2_public_ip > ec2_ip.txt
       - persist_to_workspace:
           root: infra
@@ -322,7 +322,7 @@ jobs:
           name: terraform create destroy plan
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform plan -destroy -out tfdestroy -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
       - persist_to_workspace:
           root: infra
@@ -339,7 +339,7 @@ jobs:
           name: terraform destroy
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform apply -auto-approve tfdestroy
 
   destroy-directly:
@@ -355,7 +355,7 @@ jobs:
           name: terraform destroy directly
           command: |
             cd infra
-            export TF_WORKSPACE="${CIRCLE_BRANCH}"
+            export TF_WORKSPACE="${CIRCLE_BRANCH:-develop}"
             terraform destroy -auto-approve -var-file=terraform.tfvars -var="environment=<< parameters.environment >>" -var="dev_id=${CIRCLE_WORKFLOW_ID}"
   
   deploy-aws:
@@ -470,6 +470,8 @@ workflows:
           webhook: "${DISCORD_WEBHOOK}"
           failure_message: "**❌ Fallo en las pruebas de despliegue**"
           exit_code: 1
+          filters:
+            <<: *filters-dev
           requires:
             - apply-directly:
               - failed
@@ -527,7 +529,7 @@ workflows:
             <<: *filters-infra
       - discord-notification:
           webhook: "${DISCORD_INFRA_WEBHOOK}"
-          success_message: "**✅ Infraestructura aws creada y probada exitosamente!** Ya puede ser implementada en producción."
+          success_message: "**✅ Infraestructura aws creada y probada exitosamente!**\\nYa puede ser implementada en producción."
           requires:
             - destroy
           filters:
