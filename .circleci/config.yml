@@ -455,6 +455,8 @@ workflows:
             - bombardier-test:
               - failed
               - success
+            - deploy-aws:
+              - failed
           filters:
             <<: *filters-dev
       - pull-request:
