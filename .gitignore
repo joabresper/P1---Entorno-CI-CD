@@ -4,3 +4,5 @@ claves.txt
 .terraform/
 terraform.tfstate
 terraform.tfstate.backup
+
+codigo.txt
