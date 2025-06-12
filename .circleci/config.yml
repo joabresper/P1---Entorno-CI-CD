@@ -596,7 +596,7 @@ workflows:
   #         connections: 1000000
   #         requests: 1000000
   
-  sonar-test:
-    jobs:
-      - sonarcloud
+  # sonar-test:
+  #   jobs:
+  #     - sonarcloud
       
