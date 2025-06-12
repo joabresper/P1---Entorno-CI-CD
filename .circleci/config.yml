@@ -237,7 +237,7 @@ jobs:
             curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls \
-              -d "{\"title\": \"Auto PR: ${CIRCLE_BRANCH} → main | ${CIRCLE_TAG}\", \"head\": \"${CIRCLE_BRANCH}\", \"base\": \"main\", \"body\": \"Auto PR - << parameters.message >> Fusionando cambios de ${CIRCLE_BRANCH} a main.\"}"
+              -d "{\"title\": \"Auto PR: ${CIRCLE_BRANCH:-develop} → main | ${CIRCLE_TAG}\", \"head\": \"${CIRCLE_BRANCH:-develop}\", \"base\": \"main\", \"body\": \"Auto PR - << parameters.message >> Fusionando cambios de ${CIRCLE_BRANCH:-develop} a main.\"}"
 
   plan-apply:
     working_directory: ~/project
