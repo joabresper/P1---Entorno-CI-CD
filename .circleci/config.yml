@@ -45,7 +45,7 @@ jobs:
           success_message: "**✅ Pruebas de backend exitosas!**\\n\\nUsuario: **${CIRCLE_USERNAME}**"
           failure_message: "**❌ Las pruebas de backend fallaron.** Revisá los resultados.\\n\\nUsuario: **${CIRCLE_USERNAME}**"
 
-  discord-notification:
+  discord-notification: 
     docker:
       - image: cimg/base:stable
     parameters:
