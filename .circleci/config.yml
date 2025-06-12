@@ -532,39 +532,39 @@ workflows:
   #         filters:
   #           <<: *filters-infra
 
-  # main-pipeline:
-  #   jobs:
-  #     - plan-apply:
-  #         environment: "production"
-  #         filters: &filters-main
-  #           branches:
-  #             only: main
-  #     - apply:
-  #         requires:
-  #           - plan-apply
-  #         filters:
-  #           <<: *filters-main
-  #     - deploy-aws:
-  #         requires:
-  #           - apply
-  #         filters:
-  #           <<: *filters-main
-  #     - discord-notification:
-  #         webhook: "${DISCORD_DEPLOY_WEBHOOK}"
-  #         success_message: "**✅ Deploy en producción completado exitosamente!**"
-  #         requires:
-  #           - deploy-aws
-  #     - discord-notification:
-  #         webhook: "${DISCORD_DEPLOY_WEBHOOK}"
-  #         failure_message: "**❌ Falló el deploy en producción.**"
-  #         exit_code: 1
-  #         requires:
-  #           - plan-apply:
-  #             - failed
-  #           - apply:
-  #             - failed
-  #           - deploy-aws:
-  #             - failed
+  main-pipeline:
+    jobs:
+      - plan-apply:
+          environment: "production"
+          filters: &filters-main
+            branches:
+              only: main
+      - apply:
+          requires:
+            - plan-apply
+          filters:
+            <<: *filters-main
+      - deploy-aws:
+          requires:
+            - apply
+          filters:
+            <<: *filters-main
+      - discord-notification:
+          webhook: "${DISCORD_DEPLOY_WEBHOOK}"
+          success_message: "**✅ Deploy en producción completado exitosamente!**"
+          requires:
+            - deploy-aws
+      - discord-notification:
+          webhook: "${DISCORD_DEPLOY_WEBHOOK}"
+          failure_message: "**❌ Falló el deploy en producción.**"
+          exit_code: 1
+          requires:
+            - plan-apply:
+              - failed
+            - apply:
+              - failed
+            - deploy-aws:
+              - failed
             
 
   # tf-test:
@@ -596,7 +596,7 @@ workflows:
   #         connections: 1000000
   #         requests: 1000000
   
-  sonar-test:
-    jobs:
-      - sonarcloud
+  # sonar-test:
+  #   jobs:
+  #     - sonarcloud
       
